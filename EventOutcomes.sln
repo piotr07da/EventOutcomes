@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventOutcomes", "EventOutcomes\EventOutcomes.csproj", "{A5A9B380-312F-4322-A000-9A0C8BB9218F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventOutcomes", "EventOutcomes\EventOutcomes.csproj", "{A5A9B380-312F-4322-A000-9A0C8BB9218F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EventOutcomes.Tests", "EventOutcomes.Tests\EventOutcomes.Tests.csproj", "{C7CC214E-E4EF-406F-A46C-CAD62E9355BA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventOutcomes.Tests", "EventOutcomes.Tests\EventOutcomes.Tests.csproj", "{C7CC214E-E4EF-406F-A46C-CAD62E9355BA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

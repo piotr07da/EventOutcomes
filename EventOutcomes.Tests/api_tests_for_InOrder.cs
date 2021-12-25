@@ -4,7 +4,7 @@ using Xunit;
 
 namespace EventOutcomes.Tests
 {
-    public class api_tests
+    public class api_tests_for_InOrder
     {
         [Fact]
         public async Task given_the_same_events_in_the_same_order_when_Test_for_InOrder_check_then_NO_exception_thrown()

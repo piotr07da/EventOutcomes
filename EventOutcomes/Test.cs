@@ -17,6 +17,10 @@ namespace EventOutcomes
             _eventStreamId = eventStreamId;
         }
 
+        public IList<object> ActCommands { get; } = new List<object>();
+
+        public IDictionary<string, EventAssertionChain> AssertChecks { get; } = new Dictionary<string, EventAssertionChain>();
+
         public Guid EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For method to create the Test object.");
 
         public static Test For(Guid? eventStreamId) => new Test(eventStreamId);
@@ -34,7 +38,8 @@ namespace EventOutcomes
 
         public Test When(object commandToExecute)
         {
-            throw new NotImplementedException();
+            ActCommands.Add(commandToExecute);
+            return this;
         }
 
         public Test AllowExtra() => AllowExtra(EventStreamId);
@@ -58,7 +63,7 @@ namespace EventOutcomes
 
         public Test ThenInOrder(params object[] expectedEvents) => ThenInOrder(EventStreamId, expectedEvents);
 
-        public Test ThenInOrder(Guid eventStreamId, params object[] expectedEvents) => throw new NotImplementedException();
+        public Test ThenInOrder(Guid eventStreamId, params object[] expectedEvents) => ThenPositiveCheck(eventStreamId, expectedEvents, PositiveCheckOrder.InOrder);
 
         public Test ThenOutOfOrder(params object[] expectedEvents) => ThenOutOfOrder(EventStreamId, expectedEvents);
 
@@ -69,6 +74,27 @@ namespace EventOutcomes
         public Test ThenNone(Guid eventStreamId)
         {
             throw new NotImplementedException();
+        }
+
+        private Test ThenPositiveEventAssertion(Guid eventStreamId, object[] expectedEvents, PositiveEventAssertionOrder order)
+        {
+            var checkChain = GetCheckChain(eventStreamId);
+
+            checkChain.Add(new PositiveCheck(expectedEvents, order));
+
+            return this;
+        }
+
+        private EventAssertionChain GetEventAssertionChain(Guid eventStreamId)
+        {
+            var key = eventStreamId.ToString();
+            if (!AssertChecks.TryGetValue(key, out var checkChain))
+            {
+                checkChain = new CheckChain();
+                AssertChecks.Add(key, checkChain);
+            }
+
+            return checkChain;
         }
     }
 }
