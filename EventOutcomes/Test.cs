@@ -21,7 +21,7 @@ namespace EventOutcomes
 
         public IDictionary<string, EventAssertionChain> AssertChecks { get; } = new Dictionary<string, EventAssertionChain>();
 
-        public Guid EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For method to create the Test object.");
+        public Guid EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For method to create the Test object for specified stream Id.");
 
         public static Test For(Guid? eventStreamId) => new Test(eventStreamId);
 
@@ -63,7 +63,7 @@ namespace EventOutcomes
 
         public Test ThenInOrder(params object[] expectedEvents) => ThenInOrder(EventStreamId, expectedEvents);
 
-        public Test ThenInOrder(Guid eventStreamId, params object[] expectedEvents) => ThenPositiveCheck(eventStreamId, expectedEvents, PositiveCheckOrder.InOrder);
+        public Test ThenInOrder(Guid eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InOrder);
 
         public Test ThenOutOfOrder(params object[] expectedEvents) => ThenOutOfOrder(EventStreamId, expectedEvents);
 
@@ -78,9 +78,9 @@ namespace EventOutcomes
 
         private Test ThenPositiveEventAssertion(Guid eventStreamId, object[] expectedEvents, PositiveEventAssertionOrder order)
         {
-            var checkChain = GetCheckChain(eventStreamId);
+            var checkChain = GetEventAssertionChain(eventStreamId);
 
-            checkChain.Add(new PositiveCheck(expectedEvents, order));
+            checkChain.AddPositiveAssertion(new PositiveEventAssertion(expectedEvents, order));
 
             return this;
         }
@@ -90,7 +90,7 @@ namespace EventOutcomes
             var key = eventStreamId.ToString();
             if (!AssertChecks.TryGetValue(key, out var checkChain))
             {
-                checkChain = new CheckChain();
+                checkChain = new EventAssertionChain();
                 AssertChecks.Add(key, checkChain);
             }
 
