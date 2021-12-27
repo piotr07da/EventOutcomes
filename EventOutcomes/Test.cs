@@ -19,7 +19,7 @@ namespace EventOutcomes
 
         public IList<object> ActCommands { get; } = new List<object>();
 
-        public IDictionary<string, EventAssertionChain> AssertChecks { get; } = new Dictionary<string, EventAssertionChain>();
+        public IDictionary<string, EventAssertionsChain> AssertChecks { get; } = new Dictionary<string, EventAssertionsChain>();
 
         public Guid EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For method to create the Test object for specified stream Id.");
 
@@ -33,7 +33,8 @@ namespace EventOutcomes
 
         public Test Given(Guid eventStreamId, params object[] initializationEvents)
         {
-            throw new NotImplementedException();
+            // TODO
+            return this;
         }
 
         public Test When(object commandToExecute)
@@ -85,12 +86,12 @@ namespace EventOutcomes
             return this;
         }
 
-        private EventAssertionChain GetEventAssertionChain(Guid eventStreamId)
+        private EventAssertionsChain GetEventAssertionChain(Guid eventStreamId)
         {
             var key = eventStreamId.ToString();
             if (!AssertChecks.TryGetValue(key, out var checkChain))
             {
-                checkChain = new EventAssertionChain();
+                checkChain = new EventAssertionsChain();
                 AssertChecks.Add(key, checkChain);
             }
 

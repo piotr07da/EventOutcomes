@@ -1,12 +1,14 @@
-﻿using EventOutcomes;
+﻿namespace EventOutcomes.Tests;
 
 public class EventOutcomesTesterAdapter : IAdapter
 {
-    private readonly object[] _stubbedThenEvents;
+    private readonly Guid _stubbedPublishedEventsStreamId;
+    private readonly object[] _stubbedPublishedEvents;
 
-    public EventOutcomesTesterAdapter(object[] stubbedThenEvents)
+    public EventOutcomesTesterAdapter(Guid stubbedPublishedEventsStreamId, object[] stubbedPublishedEvents)
     {
-        _stubbedThenEvents = stubbedThenEvents;
+        _stubbedPublishedEventsStreamId = stubbedPublishedEventsStreamId;
+        _stubbedPublishedEvents = stubbedPublishedEvents;
     }
 
     public Task BeforeTestAsync()
@@ -24,15 +26,16 @@ public class EventOutcomesTesterAdapter : IAdapter
         return Task.CompletedTask;
     }
 
-    public Task<IEnumerable<object>> GetThenEventsAsync(string streamId)
-    {
-        return Task.FromResult(_stubbedThenEvents.AsEnumerable());
-    }
-
     public Task DispatchCommandAsync(object command)
     {
         return Task.CompletedTask;
     }
 
-    public static EventOutcomesTesterAdapter Stub(params object[] stubbedThenEvents) => new(stubbedThenEvents);
+    public async Task<IDictionary<string, IEnumerable<object>>> GetPublishedEventsAsync()
+    {
+        await Task.Delay(0);
+        return new Dictionary<string, IEnumerable<object>> { { _stubbedPublishedEventsStreamId.ToString(), _stubbedPublishedEvents.AsEnumerable() }, };
+    }
+
+    public static EventOutcomesTesterAdapter Stub(Guid stubbedPublishedEventsStreamId, params object[] stubbedThenEvents) => new(stubbedPublishedEventsStreamId, stubbedThenEvents);
 }

@@ -8,7 +8,7 @@ namespace EventOutcomes
         Task BeforeTestAsync();
         Task AfterTestAsync();
         Task SetGivenEventsAsync(string streamId, IEnumerable<object> events);
-        Task<IEnumerable<object>> GetThenEventsAsync(string streamId);
+        Task<IDictionary<string, IEnumerable<object>>> GetPublishedEventsAsync();
         Task DispatchCommandAsync(object command);
     }
 }
