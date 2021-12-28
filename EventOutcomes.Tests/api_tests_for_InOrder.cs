@@ -29,7 +29,7 @@ namespace EventOutcomes.Tests
         {
             await Assert.ThrowsAsync<AssertException>(async () =>
             {
-                var t = Test.For(Guid.NewGuid())
+                var t = Test.For(_streamId)
                     .Given()
                     .When(new FirstCommand())
                     .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
@@ -43,7 +43,7 @@ namespace EventOutcomes.Tests
         {
             await Assert.ThrowsAsync<AssertException>(async () =>
             {
-                var t = Test.For(Guid.NewGuid())
+                var t = Test.For(_streamId)
                     .Given()
                     .When(new FirstCommand())
                     .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
