@@ -92,7 +92,11 @@ namespace EventOutcomes
 
         public Test ThenNone(string eventStreamId)
         {
-            throw new NotImplementedException();
+            var checkChain = GetEventAssertionChain(eventStreamId);
+
+            checkChain.AddNoneAssertion();
+
+            return this;
         }
 
         private Test ThenPositiveEventAssertion(string eventStreamId, object[] expectedEvents, PositiveEventAssertionOrder order)

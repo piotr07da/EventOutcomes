@@ -14,7 +14,7 @@ namespace EventOutcomes.Tests
         }
 
         [Fact]
-        public async Task given_the_same_events_in_the_same_order_when_Test_for_OutOfOrder_check_then_NO_exception_thrown()
+        public async Task having_the_same_events_in_the_same_order_when_Test_for_OutOfOrder_assertion_then_NO_exception_thrown()
         {
             var t = Test.For(_streamId)
                 .Given()
@@ -25,7 +25,7 @@ namespace EventOutcomes.Tests
         }
 
         [Fact]
-        public async Task given_the_same_events_in_different_order_when_Test_for_OutOfOrder_check_then_NO_exception_thrown()
+        public async Task having_the_same_events_in_different_order_when_Test_for_OutOfOrder_assertion_then_NO_exception_thrown()
         {
             var t = Test.For(_streamId)
                 .Given()
@@ -36,7 +36,7 @@ namespace EventOutcomes.Tests
         }
 
         [Fact]
-        public async Task given_events_of_the_same_type_with_the_same_order_but_with_different_data_when_Test_for_OutOfOrder_check_then_exception_thrown()
+        public async Task having_events_of_the_same_type_with_the_same_order_but_with_different_data_when_Test_for_OutOfOrder_assertion_then_exception_thrown()
         {
             await Assert.ThrowsAsync<AssertException>(async () =>
             {
