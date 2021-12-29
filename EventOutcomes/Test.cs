@@ -60,13 +60,13 @@ namespace EventOutcomes
 
         public Test ThenAny(Guid eventStreamId) => ThenAny(eventStreamId.ToString());
 
-        public Test ThenAny(string eventStreamId) => throw new NotImplementedException();
+        public Test ThenAny(string eventStreamId) => ThenNegativeEventAssertion(eventStreamId, Array.Empty<Func<object, bool>>());
 
         public Test ThenNot(params Func<object, bool>[] excludedEventQualifiers) => ThenNot(EventStreamId, excludedEventQualifiers);
 
         public Test ThenNot(Guid eventStreamId, params Func<object, bool>[] excludedEventQualifiers) => ThenNot(eventStreamId.ToString(), excludedEventQualifiers);
 
-        public Test ThenNot(string eventStreamId, params Func<object, bool>[] excludedEventQualifiers) => throw new NotImplementedException();
+        public Test ThenNot(string eventStreamId, params Func<object, bool>[] excludedEventQualifiers) => ThenNegativeEventAssertion(eventStreamId, excludedEventQualifiers);
 
         public Test Then(object expectedEvent) => Then(EventStreamId, expectedEvent);
 
@@ -95,6 +95,15 @@ namespace EventOutcomes
             var checkChain = GetEventAssertionChain(eventStreamId);
 
             checkChain.AddNoneAssertion();
+
+            return this;
+        }
+
+        private Test ThenNegativeEventAssertion(string eventStreamId, Func<object, bool>[] excludedEventQualifiers)
+        {
+            var checkChain = GetEventAssertionChain(eventStreamId);
+
+            checkChain.AddNegativeAssertion(new NegativeEventAssertion(excludedEventQualifiers));
 
             return this;
         }

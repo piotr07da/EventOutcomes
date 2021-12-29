@@ -16,17 +16,21 @@ namespace EventOutcomes.Tests
         [Fact]
         public async Task having_NO_events_published_when_Test_for_None_assertion_then_NO_exception_thrown()
         {
+            var having = EventOutcomesTesterAdapter.Stub(_streamId);
+
             var t = Test.For(_streamId)
                 .Given()
                 .When(new FirstCommand())
                 .ThenNone();
 
-            await Tester.TestAsync(t, EventOutcomesTesterAdapter.Stub(_streamId));
+            await Tester.TestAsync(t, having);
         }
 
         [Fact]
         public async Task having_event_published_when_Test_for_None_assertion_then_exception_thrown()
         {
+            var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(1));
+
             await Assert.ThrowsAsync<AssertException>(async () =>
             {
                 var t = Test.For(_streamId)
@@ -34,7 +38,7 @@ namespace EventOutcomes.Tests
                     .When(new FirstCommand())
                     .ThenNone();
 
-                await Tester.TestAsync(t, EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(1)));
+                await Tester.TestAsync(t, having);
             });
         }
     }

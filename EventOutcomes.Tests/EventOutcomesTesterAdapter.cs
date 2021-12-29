@@ -37,5 +37,5 @@ public class EventOutcomesTesterAdapter : IAdapter
         return new Dictionary<string, IEnumerable<object>> { { _stubbedPublishedEventsStreamId.ToString(), _stubbedPublishedEvents.AsEnumerable() }, };
     }
 
-    public static EventOutcomesTesterAdapter Stub(Guid stubbedPublishedEventsStreamId, params object[] stubbedThenEvents) => new(stubbedPublishedEventsStreamId, stubbedThenEvents);
+    public static EventOutcomesTesterAdapter Stub(Guid stubbedPublishedEventsStreamId, params object[] stubbedPublishedEvents) => new(stubbedPublishedEventsStreamId, stubbedPublishedEvents);
 }
