@@ -55,7 +55,7 @@ namespace EventOutcomes
             // THEN
 
             var streamsWithPublishedEvents = await _adapter.GetPublishedEventsAsync();
-            AssertEventStreamsAssertions(test.AssertChecks, streamsWithPublishedEvents);
+            AssertEventStreamsAssertions(test.AssertEventAssertionsChains, streamsWithPublishedEvents);
         }
 
         private static void AssertEventStreamsAssertions(IDictionary<string, EventAssertionsChain> assertionsChainsForStreams, IDictionary<string, IEnumerable<object>> streamsWithPublishedEvents)

@@ -18,8 +18,8 @@ namespace EventOutcomes
         }
 
         public IList<object> ActCommands { get; } = new List<object>();
-
-        public IDictionary<string, EventAssertionsChain> AssertChecks { get; } = new Dictionary<string, EventAssertionsChain>();
+        public IDictionary<string, EventAssertionsChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventAssertionsChain>();
+        public ExceptionExpectation AssertException { get; private set; }
 
         public string EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For method to create the Test object for specified stream Id.");
 
@@ -27,11 +27,11 @@ namespace EventOutcomes
 
         public static Test For(string eventStreamId) => new Test(eventStreamId);
 
-        public Test Given(IEnumerable<object> initializationEvents) => Given(EventStreamId, initializationEvents.ToArray());
+        public Test Given(IEnumerable<object> initializationEvents) => Given(EventStreamId, Enumerable.ToArray(initializationEvents));
 
         public Test Given(params object[] initializationEvents) => Given(EventStreamId, initializationEvents);
 
-        public Test Given(Guid eventStreamId, IEnumerable<object> initializationEvents) => Given(eventStreamId.ToString(), initializationEvents.ToArray());
+        public Test Given(Guid eventStreamId, IEnumerable<object> initializationEvents) => Given(eventStreamId.ToString(), Enumerable.ToArray(initializationEvents));
 
         public Test Given(Guid eventStreamId, params object[] initializationEvents) => Given(eventStreamId.ToString(), initializationEvents);
 
@@ -120,13 +120,51 @@ namespace EventOutcomes
         private EventAssertionsChain GetEventAssertionChain(string eventStreamId)
         {
             var key = eventStreamId;
-            if (!AssertChecks.TryGetValue(key, out var checkChain))
+            if (!AssertEventAssertionsChains.TryGetValue(key, out var checkChain))
             {
                 checkChain = new EventAssertionsChain();
-                AssertChecks.Add(key, checkChain);
+                AssertEventAssertionsChains.Add(key, checkChain);
             }
 
             return checkChain;
+        }
+
+        public Test ThenException<TException>(IExceptionAssertion<TException> exceptionAssertion)
+            where TException : Exception
+        {
+            if (AssertException != null)
+                throw new InvalidOperationException("There is expected exception associated with this Test. You cannot expect another exception. Remove previous expectation if needed.");
+
+            AssertException = new ExceptionExpectation(typeof(TException), exceptionAssertion);
+
+            return this;
+        }
+    }
+
+    public interface IExceptionAssertion<in TException>
+        where TException : Exception
+    {
+        void Assert(TException thrownException);
+    }
+
+    public class ExceptionAssertion<TException> : IExceptionAssertion<TException>
+        where TException : Exception
+    {
+        private readonly ExceptionMessageAssertion _messageAssertion;
+
+        private ExceptionAssertion(ExceptionMessageAssertion messageAssertion)
+        {
+            _messageAssertion = messageAssertion ?? throw new ArgumentNullException(nameof(messageAssertion));
+        }
+
+        public void Assert(TException thrownException)
+        {
+            _messageAssertion.Assert(thrownException);
+        }
+
+        public static ExceptionAssertion<TException> For(ExceptionMessageAssertion messageAssertion)
+        {
+            return new ExceptionAssertion<TException>(messageAssertion);
         }
     }
 }
