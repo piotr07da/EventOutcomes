@@ -77,7 +77,7 @@ namespace EventOutcomes
                     throw new AssertException($"Expected stream of events not found / not published. Stream name is {streamName}.");
                 }
 
-                AssertionExecutor.Execute(publishedEvents, assertionChain);
+                EventAssertionsChainExecutor.Execute(assertionChain, publishedEvents);
             }
         }
     }

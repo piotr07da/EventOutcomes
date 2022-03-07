@@ -5,14 +5,14 @@ using System.Text;
 
 namespace EventOutcomes
 {
-    public class AssertionExecutor
+    public class EventAssertionsChainExecutor
     {
-        public static void Execute(IEnumerable<object> events, EventAssertionsChain assertionChain)
+        public static void Execute(EventAssertionsChain assertionChain, IEnumerable<object> events)
         {
-            Execute(events.ToArray(), assertionChain);
+            Execute(assertionChain, events.ToArray());
         }
 
-        public static void Execute(object[] events, EventAssertionsChain assertionChain)
+        public static void Execute(EventAssertionsChain assertionChain, object[] events)
         {
             if (assertionChain.IsNone)
             {

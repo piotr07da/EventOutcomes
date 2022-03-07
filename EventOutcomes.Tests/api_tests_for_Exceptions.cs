@@ -21,7 +21,7 @@ namespace EventOutcomes.Tests
             var t = Test.For(_streamId)
                 .Given()
                 .When(new FirstCommand())
-                .ThenException(ExceptionAssertion<UnbelievableException>.For(ExceptionMessageAssertion.Equals("exc msg")));
+                .ThenException<UnbelievableException>();
 
             await Tester.TestAsync(t, having);
         }
