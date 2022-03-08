@@ -31,13 +31,13 @@ namespace EventOutcomes.Tests
         {
             var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(1));
 
+            var t = Test.For(_streamId)
+                .Given()
+                .When(new FirstCommand())
+                .ThenNone();
+
             await Assert.ThrowsAsync<AssertException>(async () =>
             {
-                var t = Test.For(_streamId)
-                    .Given()
-                    .When(new FirstCommand())
-                    .ThenNone();
-
                 await Tester.TestAsync(t, having);
             });
         }

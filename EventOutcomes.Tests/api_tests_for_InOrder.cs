@@ -31,13 +31,13 @@ namespace EventOutcomes.Tests
         {
             var having = EventOutcomesTesterAdapter.Stub(_streamId, new SecondSampleEvent("abc123"), new FirstSampleEvent(1), new FirstSampleEvent(999));
 
+            var t = Test.For(_streamId)
+                .Given()
+                .When(new FirstCommand())
+                .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
+
             await Assert.ThrowsAsync<AssertException>(async () =>
             {
-                var t = Test.For(_streamId)
-                    .Given()
-                    .When(new FirstCommand())
-                    .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
-
                 await Tester.TestAsync(t, having);
             });
         }
@@ -47,13 +47,13 @@ namespace EventOutcomes.Tests
         {
             var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(111), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
 
+            var t = Test.For(_streamId)
+                .Given()
+                .When(new FirstCommand())
+                .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
+
             await Assert.ThrowsAsync<AssertException>(async () =>
             {
-                var t = Test.For(_streamId)
-                    .Given()
-                    .When(new FirstCommand())
-                    .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
-
                 await Tester.TestAsync(t, having);
             });
         }

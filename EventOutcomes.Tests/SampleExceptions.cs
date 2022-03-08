@@ -1,5 +1,13 @@
 ﻿namespace EventOutcomes.Tests
 {
+    public class ExceptionalException : Exception
+    {
+        public ExceptionalException(string message)
+            : base(message)
+        {
+        }
+    }
+
     public class UnbelievableException : Exception
     {
         public UnbelievableException(string message)

@@ -33,15 +33,15 @@ public class api_tests_for_Not
     {
         var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(8), new SecondSampleEvent("x"));
 
+        var t = Test.For(_streamId)
+            .Given()
+            .When(new FirstCommand())
+            .ThenNot(
+                e => e is FirstSampleEvent { V: 999, },
+                e => e is SecondSampleEvent { V: "x", });
+
         await Assert.ThrowsAsync<AssertException>(async () =>
         {
-            var t = Test.For(_streamId)
-                .Given()
-                .When(new FirstCommand())
-                .ThenNot(
-                    e => e is FirstSampleEvent { V: 999, },
-                    e => e is SecondSampleEvent { V: "x", });
-
             await Tester.TestAsync(t, having);
         });
     }

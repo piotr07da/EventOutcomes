@@ -119,29 +119,28 @@ namespace EventOutcomes
 
         private EventAssertionsChain GetEventAssertionChain(string eventStreamId)
         {
-            var key = eventStreamId;
-            if (!AssertEventAssertionsChains.TryGetValue(key, out var checkChain))
+            if (!AssertEventAssertionsChains.TryGetValue(eventStreamId, out var checkChain))
             {
                 checkChain = new EventAssertionsChain();
-                AssertEventAssertionsChains.Add(key, checkChain);
+                AssertEventAssertionsChains.Add(eventStreamId, checkChain);
             }
 
             return checkChain;
         }
 
-        public Test ThenAnyException<TExpectedException>(string expectedMessage, ExceptionMessageAssertionMatchingType matchingType)
+        public Test ThenAnyException<TExpectedException>(string expectedMessage, ExceptionMessageAssertionType matchingType)
             where TExpectedException : Exception
         {
             return ThenException<TExpectedException>(true, expectedMessage, matchingType);
         }
 
-        public Test ThenException<TExpectedException>(string expectedMessage, ExceptionMessageAssertionMatchingType matchingType)
+        public Test ThenException<TExpectedException>(string expectedMessage, ExceptionMessageAssertionType matchingType)
             where TExpectedException : Exception
         {
             return ThenException<TExpectedException>(false, expectedMessage, matchingType);
         }
 
-        private Test ThenException<TExpectedException>(bool anyDerived, string expectedMessage, ExceptionMessageAssertionMatchingType matchingType)
+        private Test ThenException<TExpectedException>(bool anyDerived, string expectedMessage, ExceptionMessageAssertionType matchingType)
             where TExpectedException : Exception
         {
             return ThenException(
@@ -167,7 +166,7 @@ namespace EventOutcomes
             return ThenException(new ExceptionTypeAssertion(typeof(TExpectedException), anyDerived));
         }
 
-        public Test ThenException(string expectedMessage, ExceptionMessageAssertionMatchingType matchingType)
+        public Test ThenException(string expectedMessage, ExceptionMessageAssertionType matchingType)
         {
             return ThenException(new ExceptionMessageAssertion(expectedMessage, matchingType));
         }

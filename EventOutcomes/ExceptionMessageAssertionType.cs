@@ -1,6 +1,6 @@
 ﻿namespace EventOutcomes
 {
-    public enum ExceptionMessageAssertionMatchingType
+    public enum ExceptionMessageAssertionType
     {
         Equals,
         Contains,

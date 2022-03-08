@@ -1,15 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace EventOutcomes
 {
     public class Tester
     {
+        private readonly Test _test;
         private readonly IAdapter _adapter;
 
-        public Tester(IAdapter adapter)
+        private Exception _thrownException;
+
+        private Tester(Test test, IAdapter adapter)
         {
+            _test = test ?? throw new ArgumentNullException(nameof(test));
             _adapter = adapter ?? throw new ArgumentNullException(nameof(adapter));
         }
 
@@ -17,45 +23,94 @@ namespace EventOutcomes
 
         public static async Task TestAsync(string eventStreamId, Func<Test, Test> testSetup, IAdapter adapter)
         {
-            var tester = new Tester(adapter);
-            var gwt = testSetup(Test.For(eventStreamId));
-            await tester.InternalTestAsync(gwt);
+            var test = testSetup(Test.For(eventStreamId));
+            var tester = new Tester(test, adapter);
+            await tester.InternalTestAsync();
         }
 
         public static async Task TestAsync(Func<Test, Test> testSetup, IAdapter adapter)
         {
-            var tester = new Tester(adapter);
-            var gwt = testSetup(new Test());
-            await tester.InternalTestAsync(gwt);
+            var test = testSetup(new Test());
+            var tester = new Tester(test, adapter);
+
+            await tester.InternalTestAsync();
         }
 
         public static async Task TestAsync(Test test, IAdapter adapter)
         {
-            var tester = new Tester(adapter);
-            await tester.InternalTestAsync(test);
+            var tester = new Tester(test, adapter);
+            await tester.InternalTestAsync();
         }
 
-        private async Task InternalTestAsync(Test test)
+        private async Task InternalTestAsync()
         {
             await _adapter.BeforeTestAsync();
 
-            // GIVEN
-
-            // TODO
-
-            // WHEN
-
-            // TODO - exceptions expectations
-
-            foreach (var command in test.ActCommands)
+            try
             {
-                await _adapter.DispatchCommandAsync(command);
+                await ArrangeAsync();
+                await ActAsync();
+                await AssertAsync();
             }
+            finally
+            {
+                await _adapter.AfterTestAsync();
+            }
+        }
 
-            // THEN
+        private async Task ArrangeAsync()
+        {
+            await Task.CompletedTask;
+        }
 
-            var streamsWithPublishedEvents = await _adapter.GetPublishedEventsAsync();
-            AssertEventStreamsAssertions(test.AssertEventAssertionsChains, streamsWithPublishedEvents);
+        private async Task ActAsync()
+        {
+            try
+            {
+                foreach (var command in _test.ActCommands)
+                {
+                    await _adapter.DispatchCommandAsync(command);
+                }
+            }
+            catch (TargetInvocationException tiEx)
+            {
+                _thrownException = tiEx.InnerException;
+            }
+            catch (Exception ex)
+            {
+                _thrownException = ex;
+            }
+        }
+
+        private async Task AssertAsync()
+        {
+            var exceptionAssertions = _test.AssertExceptionAssertions;
+            if (exceptionAssertions.Count == 0)
+            {
+                if (_thrownException != null)
+                {
+                    throw new AssertException(_thrownException.ToString());
+                }
+
+                var streamsWithPublishedEvents = await _adapter.GetPublishedEventsAsync();
+                AssertEventStreamsAssertions(_test.AssertEventAssertionsChains, streamsWithPublishedEvents);
+            }
+            else
+            {
+                if (_thrownException == null)
+                {
+                    var streamsWithPublishedEvents = await _adapter.GetPublishedEventsAsync();
+
+                    var savedAggregatesChanges = streamsWithPublishedEvents.SelectMany(streamKvp => streamKvp.Value);
+
+                    throw new AssertException($"At least one exception assertion has been defined but no exception has been thrown. Following events were produced instead: [{string.Join(", ", savedAggregatesChanges.Select(e => e.GetType().Name))}].");
+                }
+
+                foreach (var exceptionAssertion in exceptionAssertions)
+                {
+                    exceptionAssertion.Assert(_thrownException);
+                }
+            }
         }
 
         private static void AssertEventStreamsAssertions(IDictionary<string, EventAssertionsChain> assertionsChainsForStreams, IDictionary<string, IEnumerable<object>> streamsWithPublishedEvents)
