@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace EventOutcomes
 {
     public interface IAdapter
     {
+        IServiceProvider ServiceProvider { get; }
         Task BeforeTestAsync();
         Task AfterTestAsync();
         Task SetGivenEventsAsync(string streamId, IEnumerable<object> events);

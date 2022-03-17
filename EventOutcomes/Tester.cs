@@ -94,6 +94,7 @@ namespace EventOutcomes
 
                 var streamsWithPublishedEvents = await _adapter.GetPublishedEventsAsync();
                 AssertEventStreamsAssertions(_test.AssertEventAssertionsChains, streamsWithPublishedEvents);
+                await AssertAssertActionsAsync(_adapter.ServiceProvider, _test.AssertActions);
             }
             else
             {
@@ -133,6 +134,18 @@ namespace EventOutcomes
                 }
 
                 EventAssertionsChainExecutor.Execute(assertionChain, publishedEvents);
+            }
+        }
+
+        private static async Task AssertAssertActionsAsync(IServiceProvider serviceProvider, IEnumerable<Func<IServiceProvider, Task<AssertActionResult>>> assertActions)
+        {
+            foreach (var assertAction in assertActions)
+            {
+                var result = await assertAction(serviceProvider);
+                if (!result)
+                {
+                    throw new AssertException($"Assert action failed. {result.FailMessage}");
+                }
             }
         }
     }

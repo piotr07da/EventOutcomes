@@ -1,22 +1,21 @@
-﻿namespace EventOutcomes.Tests
+﻿namespace EventOutcomes.Tests;
+
+public class FirstSampleEvent
 {
-    public class FirstSampleEvent
+    public FirstSampleEvent(int v)
     {
-        public FirstSampleEvent(int v)
-        {
-            V = v;
-        }
-
-        public int V { get; set; }
+        V = v;
     }
 
-    public class SecondSampleEvent
-    {
-        public SecondSampleEvent(string v)
-        {
-            V = v;
-        }
+    public int V { get; set; }
+}
 
-        public string V { get; set; }
+public class SecondSampleEvent
+{
+    public SecondSampleEvent(string v)
+    {
+        V = v;
     }
+
+    public string V { get; set; }
 }

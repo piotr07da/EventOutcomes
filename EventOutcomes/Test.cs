@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace EventOutcomes
 {
@@ -19,6 +21,7 @@ namespace EventOutcomes
 
         public IList<object> ActCommands { get; } = new List<object>();
         public IDictionary<string, EventAssertionsChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventAssertionsChain>();
+        public IList<Func<IServiceProvider, Task<AssertActionResult>>> AssertActions { get; } = new List<Func<IServiceProvider, Task<AssertActionResult>>>();
         public IList<IExceptionAssertion> AssertExceptionAssertions { get; } = new List<IExceptionAssertion>();
 
         public string EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For method to create the Test object for specified stream Id.");
@@ -126,6 +129,52 @@ namespace EventOutcomes
             }
 
             return checkChain;
+        }
+
+        public Test Then<TService, TFakeService>(Func<TFakeService, AssertActionResult> assertAction)
+            where TFakeService : TService
+        {
+            return Then<TService, TFakeService>(fakeService => Task.FromResult(assertAction(fakeService)));
+        }
+
+        public Test Then<TService, TFakeService>(Func<TFakeService, Task<AssertActionResult>> assertAction)
+            where TFakeService : TService
+        {
+            return Then(sp =>
+            {
+                var service = sp.GetRequiredService<TService>();
+                if (service is TFakeService fakeService)
+                {
+                    return assertAction(fakeService);
+                }
+
+                throw new Exception($"Component of type {service.GetType().Name} (instead of {typeof(TFakeService).Name}) has been resolved for service of type {typeof(TService).Name}.");
+            });
+        }
+
+        public Test Then<TService>(Func<TService, AssertActionResult> assertAction)
+        {
+            return Then<TService>(service => Task.FromResult(assertAction(service)));
+        }
+
+        public Test Then<TService>(Func<TService, Task<AssertActionResult>> assertAction)
+        {
+            return Then(sp =>
+            {
+                var service = sp.GetRequiredService<TService>();
+                return assertAction(service);
+            });
+        }
+
+        public Test Then(Func<IServiceProvider, AssertActionResult> assertAction)
+        {
+            return Then(sp => Task.FromResult(assertAction(sp)));
+        }
+
+        public Test Then(Func<IServiceProvider, Task<AssertActionResult>> assertAction)
+        {
+            AssertActions.Add(assertAction);
+            return this;
         }
 
         public Test ThenAnyException<TExpectedException>(string expectedMessage, ExceptionMessageAssertionType matchingType)

@@ -1,26 +1,25 @@
-﻿namespace EventOutcomes.Tests
+﻿namespace EventOutcomes.Tests;
+
+public class ExceptionalException : Exception
 {
-    public class ExceptionalException : Exception
+    public ExceptionalException(string message)
+        : base(message)
     {
-        public ExceptionalException(string message)
-            : base(message)
-        {
-        }
     }
+}
 
-    public class UnbelievableException : Exception
+public class UnbelievableException : Exception
+{
+    public UnbelievableException(string message)
+        : base(message)
     {
-        public UnbelievableException(string message)
-            : base(message)
-        {
-        }
     }
+}
 
-    public class DerivedUnbelievableException : UnbelievableException
+public class DerivedUnbelievableException : UnbelievableException
+{
+    public DerivedUnbelievableException(string message)
+        : base(message)
     {
-        public DerivedUnbelievableException(string message)
-            : base(message)
-        {
-        }
     }
 }
