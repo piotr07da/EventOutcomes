@@ -14,7 +14,7 @@ public class api_tests_for_passing_correct_command_in_When
     }
 
     [Fact]
-    public async Task command_passed_to_When_shall_be_the_dispatched_command()
+    public async Task command_passed_to_When_shall_be_dispatched_on_the_Adapter()
     {
         var whenCommand = new FirstCommand(123);
 
@@ -25,7 +25,7 @@ public class api_tests_for_passing_correct_command_in_When
 
         object dispatchedCommand = null;
 
-        var stubAdapter = EventOutcomesTesterAdapter.Stub((serviceProvider, givenEventsStreamId, givenEvents, command, publishEvents) =>
+        var stubAdapter = EventOutcomesTesterAdapter.Stub((serviceProvider, givenEvents, command, publishEvents) =>
         {
             dispatchedCommand = command;
             publishEvents(_streamId);

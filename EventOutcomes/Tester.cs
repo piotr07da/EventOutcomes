@@ -60,6 +60,7 @@ namespace EventOutcomes
 
         private async Task ArrangeAsync()
         {
+            await _adapter.SetGivenEventsAsync(_test.ArrangeEvents);
             await Task.CompletedTask;
         }
 

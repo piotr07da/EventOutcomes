@@ -9,7 +9,7 @@ namespace EventOutcomes
         IServiceProvider ServiceProvider { get; }
         Task BeforeTestAsync();
         Task AfterTestAsync();
-        Task SetGivenEventsAsync(string streamId, IEnumerable<object> events);
+        Task SetGivenEventsAsync(IDictionary<string, IEnumerable<object>> events);
         Task<IDictionary<string, IEnumerable<object>>> GetPublishedEventsAsync();
         Task DispatchCommandAsync(object command);
     }

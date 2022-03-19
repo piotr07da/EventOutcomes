@@ -6,15 +6,14 @@ public class EventOutcomesTesterAdapter : IAdapter
 {
     public delegate void PublishEventsAction(Guid eventStreamId, params object[] events);
 
-    public delegate void StubAction(IServiceProvider serviceProvider, string givenEventsStreamId, object[] givenEvents, object command, PublishEventsAction publishEventsAction);
+    public delegate void StubAction(IServiceProvider serviceProvider, IDictionary<string, IEnumerable<object>> givenEvents, object command, PublishEventsAction publishEventsAction);
 
     private readonly StubAction _stubAction;
 
     private readonly IServiceProvider _serviceProvider;
     private IServiceProvider? _scopedServiceProvider;
 
-    private string? _givenEventsStreamId;
-    private object[]? _givenEvents;
+    private IDictionary<string, IEnumerable<object>> _givenEvents = new Dictionary<string, IEnumerable<object>>();
     private Guid? _publishedEventsStreamId;
     private object[]? _publishedEvents;
 
@@ -41,16 +40,15 @@ public class EventOutcomesTesterAdapter : IAdapter
         return Task.CompletedTask;
     }
 
-    public Task SetGivenEventsAsync(string streamId, IEnumerable<object> events)
+    public Task SetGivenEventsAsync(IDictionary<string, IEnumerable<object>> events)
     {
-        _givenEventsStreamId = streamId;
-        _givenEvents = events.ToArray();
+        _givenEvents = events;
         return Task.CompletedTask;
     }
 
     public Task DispatchCommandAsync(object command)
     {
-        _stubAction(ServiceProvider!, _givenEventsStreamId ?? string.Empty, _givenEvents ?? Array.Empty<object>(), command, (publishedEventsStreamId, publishedEvents) =>
+        _stubAction(ServiceProvider, _givenEvents, command, (publishedEventsStreamId, publishedEvents) =>
         {
             _publishedEventsStreamId = publishedEventsStreamId;
             _publishedEvents = publishedEvents;
@@ -71,9 +69,9 @@ public class EventOutcomesTesterAdapter : IAdapter
         return result;
     }
 
-    public static EventOutcomesTesterAdapter Stub(Guid stubbedPublishedEventsStreamId, params object[] stubbedPublishedEvents) => Stub((serviceProvider, givenEventsStreamId, givenEvents, command, publishEventsAction) => publishEventsAction(stubbedPublishedEventsStreamId, stubbedPublishedEvents));
+    public static EventOutcomesTesterAdapter Stub(Guid stubbedPublishedEventsStreamId, params object[] stubbedPublishedEvents) => Stub((serviceProvider, givenEvents, command, publishEventsAction) => publishEventsAction(stubbedPublishedEventsStreamId, stubbedPublishedEvents));
 
-    public static EventOutcomesTesterAdapter Stub(Exception stubbedException) => Stub((serviceProvider, givenEventsStreamId, givenEvents, command, publishEventsAction) => throw stubbedException);
+    public static EventOutcomesTesterAdapter Stub(Exception stubbedException) => Stub((serviceProvider, givenEvents, command, publishEventsAction) => throw stubbedException);
 
     public static EventOutcomesTesterAdapter Stub(StubAction stubAction) => new(stubAction);
 }

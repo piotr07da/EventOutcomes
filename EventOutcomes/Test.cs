@@ -19,6 +19,7 @@ namespace EventOutcomes
             _eventStreamId = eventStreamId;
         }
 
+        public IDictionary<string, IEnumerable<object>> ArrangeEvents { get; } = new Dictionary<string, IEnumerable<object>>();
         public IList<object> ActCommands { get; } = new List<object>();
         public IDictionary<string, EventAssertionsChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventAssertionsChain>();
         public IList<Func<IServiceProvider, Task<AssertActionResult>>> AssertActions { get; } = new List<Func<IServiceProvider, Task<AssertActionResult>>>();
@@ -40,7 +41,15 @@ namespace EventOutcomes
 
         public Test Given(string eventStreamId, params object[] initializationEvents)
         {
-            // TODO
+            if (ArrangeEvents.TryGetValue(eventStreamId, out var currentInitializationEvents))
+            {
+                ArrangeEvents[eventStreamId] = currentInitializationEvents.Union(initializationEvents).ToArray();
+            }
+            else
+            {
+                ArrangeEvents.Add(eventStreamId, initializationEvents);
+            }
+
             return this;
         }
 
