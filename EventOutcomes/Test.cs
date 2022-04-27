@@ -19,6 +19,7 @@ namespace EventOutcomes
             _eventStreamId = eventStreamId;
         }
 
+        public IList<Action<IServiceProvider>> ArrangeActions { get; } = new List<Action<IServiceProvider>>();
         public IDictionary<string, IEnumerable<object>> ArrangeEvents { get; } = new Dictionary<string, IEnumerable<object>>();
         public IList<object> ActCommands { get; } = new List<object>();
         public IDictionary<string, EventAssertionsChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventAssertionsChain>();
@@ -30,6 +31,38 @@ namespace EventOutcomes
         public static Test For(Guid eventStreamId) => For(eventStreamId.ToString());
 
         public static Test For(string eventStreamId) => new Test(eventStreamId);
+
+        public Test Given<TService, TFakeService>(Action<TFakeService> arrageAction)
+            where TFakeService : TService
+        {
+            return Given(sp =>
+            {
+                var service = sp.GetRequiredService<TService>();
+                if (service is TFakeService fakeService)
+                {
+                    arrageAction(fakeService);
+                }
+                else
+                {
+                    throw new Exception($"Component of type {service.GetType().Name} (instead of {typeof(TFakeService).Name}) has been resolved for service of type {typeof(TService).Name}.");
+                }
+            });
+        }
+
+        public Test Given<TService>(Action<TService> arrangeAction)
+        {
+            return Given(sp =>
+            {
+                var service = sp.GetRequiredService<TService>();
+                arrangeAction(service);
+            });
+        }
+
+        public Test Given(Action<IServiceProvider> arrangeAction)
+        {
+            ArrangeActions.Add(arrangeAction);
+            return this;
+        }
 
         public Test Given(IEnumerable<object> initializationEvents) => Given(EventStreamId, initializationEvents.ToArray());
 

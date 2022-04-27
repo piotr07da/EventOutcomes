@@ -4,11 +4,11 @@ using Xunit;
 
 namespace EventOutcomes.Tests;
 
-public class api_tests_for_passing_correct_command_in_When
+public class api_tests_for_passing_correct_command_defined_in_When
 {
     private readonly Guid _streamId;
 
-    public api_tests_for_passing_correct_command_in_When()
+    public api_tests_for_passing_correct_command_defined_in_When()
     {
         _streamId = Guid.NewGuid();
     }
@@ -23,7 +23,7 @@ public class api_tests_for_passing_correct_command_in_When
             .When(whenCommand)
             .ThenAny();
 
-        object dispatchedCommand = null;
+        object? dispatchedCommand = null;
 
         var stubAdapter = EventOutcomesTesterAdapter.Stub((serviceProvider, givenEvents, command, publishEvents) =>
         {
