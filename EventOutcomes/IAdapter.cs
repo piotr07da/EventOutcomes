@@ -19,7 +19,7 @@ namespace EventOutcomes
         Task BeforeTestAsync();
 
         /// <summary>
-        ///     Called after the test is completed. Any cleanup code can goes here.
+        ///     Called after the test is completed. Any cleanup code goes here.
         /// </summary>
         /// <returns></returns>
         Task AfterTestAsync();
