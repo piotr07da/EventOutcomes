@@ -32,7 +32,7 @@ namespace EventOutcomes
 
         public static Test For(string eventStreamId) => new Test(eventStreamId);
 
-        public Test Given<TService, TFakeService>(Action<TFakeService> arrageAction)
+        public Test Given<TService, TFakeService>(Action<TFakeService> arrangeAction)
             where TFakeService : TService
         {
             return Given(sp =>
@@ -40,7 +40,7 @@ namespace EventOutcomes
                 var service = sp.GetRequiredService<TService>();
                 if (service is TFakeService fakeService)
                 {
-                    arrageAction(fakeService);
+                    arrangeAction(fakeService);
                 }
                 else
                 {
@@ -125,11 +125,11 @@ namespace EventOutcomes
 
         public Test ThenInOrder(string eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InOrder);
 
-        public Test ThenOutOfOrder(params object[] expectedEvents) => ThenOutOfOrder(EventStreamId, expectedEvents);
+        public Test ThenInAnyOrder(params object[] expectedEvents) => ThenInAnyOrder(EventStreamId, expectedEvents);
 
-        public Test ThenOutOfOrder(Guid eventStreamId, params object[] expectedEvents) => ThenOutOfOrder(eventStreamId.ToString(), expectedEvents);
+        public Test ThenInAnyOrder(Guid eventStreamId, params object[] expectedEvents) => ThenInAnyOrder(eventStreamId.ToString(), expectedEvents);
 
-        public Test ThenOutOfOrder(string eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.OutOfOrder);
+        public Test ThenInAnyOrder(string eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.OutOfOrder);
 
         public Test ThenNone() => ThenNone(EventStreamId);
 

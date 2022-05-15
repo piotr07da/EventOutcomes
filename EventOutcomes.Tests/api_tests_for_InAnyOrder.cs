@@ -4,11 +4,11 @@ using Xunit;
 
 namespace EventOutcomes.Tests;
 
-public class api_tests_for_OutOfOrder
+public class api_tests_for_InAnyOrder
 {
     private readonly Guid _streamId;
 
-    public api_tests_for_OutOfOrder()
+    public api_tests_for_InAnyOrder()
     {
         _streamId = Guid.NewGuid();
     }
@@ -21,7 +21,7 @@ public class api_tests_for_OutOfOrder
         var t = Test.For(_streamId)
             .Given()
             .When(new FirstCommand())
-            .ThenOutOfOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
+            .ThenInAnyOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
 
         await Tester.TestAsync(t, having);
     }
@@ -34,7 +34,7 @@ public class api_tests_for_OutOfOrder
         var t = Test.For(_streamId)
             .Given()
             .When(new FirstCommand())
-            .ThenOutOfOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
+            .ThenInAnyOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
 
         await Tester.TestAsync(t, having);
     }
@@ -47,7 +47,7 @@ public class api_tests_for_OutOfOrder
         var t = Test.For(_streamId)
             .Given()
             .When(new FirstCommand())
-            .ThenOutOfOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
+            .ThenInAnyOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
 
         await Assert.ThrowsAsync<AssertException>(async () =>
         {
