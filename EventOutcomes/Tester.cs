@@ -125,18 +125,13 @@ namespace EventOutcomes
             if (assertionsChainsForStreams is null) throw new ArgumentNullException(nameof(assertionsChainsForStreams));
             if (streamsWithPublishedEvents is null) throw new ArgumentNullException(nameof(streamsWithPublishedEvents));
 
-            if (assertionsChainsForStreams.Count != streamsWithPublishedEvents.Count)
-            {
-                throw new AssertException($"Number of assertions chains is different than number of streams with published events. Expected number of streams: {assertionsChainsForStreams.Count}. Actual number of streams with published events: {streamsWithPublishedEvents.Count}.");
-            }
-
             foreach (var ac in assertionsChainsForStreams)
             {
                 var streamName = ac.Key;
                 var assertionChain = ac.Value;
                 if (!streamsWithPublishedEvents.TryGetValue(streamName, out var publishedEvents))
                 {
-                    throw new AssertException($"Expected stream of events not found / not published. Stream name is {streamName}.");
+                    publishedEvents = Array.Empty<object>();
                 }
 
                 EventAssertionsChainExecutor.Execute(assertionChain, publishedEvents);
