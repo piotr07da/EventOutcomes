@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace EventOutcomes
 {
-    public class NegativeEventAssertion
+    public sealed class NegativeEventAssertion
     {
         public NegativeEventAssertion(Func<object, bool>[] excludedEventQualifiers)
         {

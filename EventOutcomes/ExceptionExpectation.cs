@@ -2,7 +2,7 @@
 
 namespace EventOutcomes
 {
-    public class ExceptionExpectation
+    public sealed class ExceptionExpectation
     {
         public ExceptionExpectation(Type exceptionType, object exceptionAssertion)
         {

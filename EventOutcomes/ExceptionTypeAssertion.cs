@@ -2,7 +2,7 @@
 
 namespace EventOutcomes
 {
-    public class ExceptionTypeAssertion : IExceptionAssertion
+    public sealed class ExceptionTypeAssertion : IExceptionAssertion
     {
         private readonly Type _expectedExceptionType;
         private readonly bool _anyDerived;

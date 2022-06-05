@@ -1,6 +1,6 @@
 ﻿namespace EventOutcomes
 {
-    public class AssertActionResult
+    public sealed class AssertActionResult
     {
         private AssertActionResult(bool success, string failMessage)
         {

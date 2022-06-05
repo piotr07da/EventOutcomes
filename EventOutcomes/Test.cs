@@ -6,7 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace EventOutcomes
 {
-    public class Test
+    public sealed class Test
     {
         private readonly string _eventStreamId;
 

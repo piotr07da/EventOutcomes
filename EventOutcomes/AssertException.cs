@@ -2,7 +2,7 @@
 
 namespace EventOutcomes
 {
-    public class AssertException : Exception
+    public sealed class AssertException : Exception
     {
         public AssertException(string message)
             : base(message)

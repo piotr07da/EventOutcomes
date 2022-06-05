@@ -3,7 +3,7 @@ using System.Text.RegularExpressions;
 
 namespace EventOutcomes
 {
-    public class ExceptionMessageAssertion : IExceptionAssertion
+    public sealed class ExceptionMessageAssertion : IExceptionAssertion
     {
         private readonly string _expectedMessage;
         private readonly ExceptionMessageAssertionType _matchingType;

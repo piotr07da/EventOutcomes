@@ -1,6 +1,6 @@
 ﻿namespace EventOutcomes
 {
-    public class ComparableEventDocument
+    public sealed class ComparableEventDocument
     {
         public ComparableEventDocument(string eventType, string content)
         {

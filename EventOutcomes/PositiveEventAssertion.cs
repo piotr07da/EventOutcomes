@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace EventOutcomes
 {
-    public class PositiveEventAssertion
+    public sealed class PositiveEventAssertion
     {
         public PositiveEventAssertion(object[] expectedEvents, PositiveEventAssertionOrder order)
         {

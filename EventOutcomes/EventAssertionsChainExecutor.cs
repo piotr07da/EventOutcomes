@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EventOutcomes
 {
-    public class EventAssertionsChainExecutor
+    public sealed class EventAssertionsChainExecutor
     {
         public static void Execute(EventAssertionsChain assertionChain, IEnumerable<object> events)
         {

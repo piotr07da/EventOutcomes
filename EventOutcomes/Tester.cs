@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace EventOutcomes
 {
-    public class Tester
+    public sealed class Tester
     {
         private readonly Test _test;
         private readonly IAdapter _adapter;
