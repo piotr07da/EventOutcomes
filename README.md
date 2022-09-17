@@ -177,8 +177,8 @@ Altough this is generally bad idea to save two streams of events within single o
 var test = new Test()
     .Given(firstEventStreamId, new SomeEvent(firstEventStreamId, "some event data"))
     .Given(secondEventStreamId, new SomeEvent(secondEventStreamId, "some event data"))
-	.When(new DoSomethingCommand())
-	.Then(firstEventStreamId, new SomeOtherEvent(firstEventStreamId, "some other event data"))
+    .When(new DoSomethingCommand())
+    .Then(firstEventStreamId, new SomeOtherEvent(firstEventStreamId, "some other event data"))
     .Then(secondEventStreamId, new SomeOtherEvent(secondEventStreamId, "some other event data"))
 ```
 instead of standard single-stream way:
@@ -186,5 +186,5 @@ instead of standard single-stream way:
 var test = Test.For(eventStreamId)
     .Given(new SomeEvent(eventStreamId, "some event data"))
     .When(new DoSomethingCommand())
-	.Given(new SomeOtherEvent(eventStreamId, "some other event data"))
+    .Given(new SomeOtherEvent(eventStreamId, "some other event data"))
 ```
