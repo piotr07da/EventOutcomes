@@ -43,11 +43,11 @@ As you can see above, in the last line there is a class ``MyCustomAdapter`` whic
 
 There are many ways to implement Event Sourcing and CQRS &ndash; you can use one of the existing frameworks or you can make your own implementation. EventOutcomes is designed to be independent of a frameworks selection. Because of that there is one thing required until you will be able to use EventOutcomes. You have to implement `IAdapter` interface. You can think of it as a common denominator for all the frameworks. Below is the explanation of what has to be implemented.
 - ``IServiceProvider ServiceProvider { get; }`` &ndash; Service provider for all the services you need to inject in your application code.
-- ``Task BeforeTestAsync();`` &ndash; Method called before the test is executed. If scoped services are required then this is a perfect place to create a scope and assign scoped service provider to the ``ServiceProvider`` property.
+- ``Task BeforeTestAsync();`` &ndash; Method called before a test is executed. If scoped services are required then this is a perfect place to create a scope and assign scoped service provider to the ``ServiceProvider`` property.
 - ``Task AfterTestAsync();`` &ndash; Method called after the test is completed. Any cleanup code goes here.
 - ``Task SetGivenEventsAsync(IDictionary<string, IEnumerable<object>> events);`` &ndash; Method that saves the GIVEN events (events that already occurred) to the place from which your Event Sourcing framework will read them in order to rehydrate the domain objects (e.g. aggregates in DDD). It can be a fake in memory implementation of some ``IEventDatabase`` interface or something similiar used by your framework.
-- ``Task<IDictionary<string, IEnumerable<object>>> GetPublishedEventsAsync();`` &ndash; In each event sourcing framework there is some component responsible for saving new published events. Implement this method so EventOutcomes can retrieve those newly published events.
-- ``Task DispatchCommandAsync(object command);`` &ndash; Put your command dispatching code here. For example ``await _commandDispatcher.Dispatch(command);`` or ``await massTransitMediator.Publish(command);``.
+- ``Task<IDictionary<string, IEnumerable<object>>> GetPublishedEventsAsync();`` &ndash; In each event sourcing framework there is some component responsible for saving newly published events. Implement this method so EventOutcomes can retrieve those newly published events.
+- ``Task DispatchCommandAsync(object command);`` &ndash; Put your command dispatching code here. For example ``await _commandDispatcher.Dispatch(command);`` or ``await _massTransitMediator.Publish(command);``.
 
 Below is an example of how ``IAdapter`` can be implemented.
 ```csharp
@@ -77,7 +77,7 @@ public class MyAdapter : IAdapter
     public Task SetGivenEventsAsync(IDictionary<string, IEnumerable<object>> events)
     {
         var fakeEventDatabase = ServiceProvider.GetRequiredService<IEventDatabase>() as FakeEventDatabase;
-        fakeEventDatabase.FakeAlreadySavedEvents(events);
+        fakeEventDatabase.StubAlreadySavedEvents(events);
         return Task.CompletedTask;
     }
 
@@ -148,7 +148,7 @@ To specify command that will be dispatched to your application code use ``When``
 ## Then
 To assert use ``Then`` method which has many variants. All of them are described below.
 - ``ThenNone()`` &ndash; test passes if no event and no exception has been thrown.
-- ``ThenAny()`` &ndash; test passes if any or no events occured. This method only makes sense if it is combined with other ``Then`` methods. For example if we want to check if FirstEventOccured and LastEventOccured but we don't care what if any events occured in between the we can write:
+- ``ThenAny()`` &ndash; test passes if any or no events occured. This method only makes sense if it is combined with other ``Then`` methods. For example if we want to check if FirstEventOccured and LastEventOccured but we don't care what if any events occured in between then we can write:
   ```csharp
   .Then(new FirstEventOccured())
   .ThenAny()
@@ -166,22 +166,25 @@ To assert use ``Then`` method which has many variants. All of them are described
 - ``Then<TService>(Func<TService, AssertActionResult> assertAction)`` &ndash; test passes if assertion action returns ``true`` or ``AssertActionResult.Successful()``. There is also async version of this method.
 - ``Then<TService, TFakeService>(Func<TFakeService, AssertActionResult> assertAction)`` &ndash; test passes if assertion action returns ``true`` or ``AssertActionResult.Successful()``. There is also async version of this method.
 - ``Then(Func<IServiceProvider, AssertActionResult> assertAction)`` &ndash; test passes if assertion action returns ``true`` or ``AssertActionResult.Successful()``. There is also async version of this method.
-- ``ThenException(params IExceptionAssertion[] exceptionAssertions)`` &ndash; test passes if exception is thrown. There are two implementations of ``IExceptionAssertion`` &ndash; ``ExceptionTypeAssertion`` and ``ExceptionMessageAssertion`` but you can write your own implementations.
+- ``ThenException(params IExceptionAssertion[] exceptionAssertions)`` &ndash; test passes if exception is thrown. There are two built-in implementations of ``IExceptionAssertion`` &ndash; ``ExceptionTypeAssertion`` and ``ExceptionMessageAssertion`` but you can write your own implementations.
 - ``ThenException<TExpectedException>(string expectedMessage, ExceptionMessageAssertionType matchingType)`` &ndash; test passes if exception of specified type and with specified message is thrown.
 - ``ThenAnyException<TExpectedException>(string expectedMessage, ExceptionMessageAssertionType matchingType)`` &ndash; test passes if exception of specified type or derived type and with specified message is thrown.
 
 ## Multistream tests
 
-Altough this is generally bad idea to save two streams of events within single operation, EventOutcomes provides way to write unit tests for such cases. To do this you should write:
+Altough this is generally bad idea to save two streams of events within single operation, EventOutcomes provides a way to write unit tests for such cases. To do this you should write:
 ```csharp
 var test = new Test()
     .Given(firstEventStreamId, new SomeEvent(firstEventStreamId, "some event data"))
     .Given(secondEventStreamId, new SomeEvent(secondEventStreamId, "some event data"))
-    // ...
+	.When(new DoSomethingCommand())
+	.Then(firstEventStreamId, new SomeOtherEvent(firstEventStreamId, "some other event data"))
+    .Then(secondEventStreamId, new SomeOtherEvent(secondEventStreamId, "some other event data"))
 ```
 instead of standard single-stream way:
 ```csharp
 var test = Test.For(eventStreamId)
     .Given(new SomeEvent(eventStreamId, "some event data"))
-    // ...
+    .When(new DoSomethingCommand())
+	.Given(new SomeOtherEvent(eventStreamId, "some other event data"))
 ```
