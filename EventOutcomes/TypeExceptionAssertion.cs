@@ -2,12 +2,12 @@
 
 namespace EventOutcomes
 {
-    public sealed class ExceptionTypeAssertion : IExceptionAssertion
+    public sealed class TypeExceptionAssertion : IExceptionAssertion
     {
         private readonly Type _expectedExceptionType;
         private readonly bool _anyDerived;
 
-        public ExceptionTypeAssertion(Type expectedExceptionType, bool anyDerived)
+        public TypeExceptionAssertion(Type expectedExceptionType, bool anyDerived)
         {
             _expectedExceptionType = expectedExceptionType ?? throw new ArgumentNullException(nameof(expectedExceptionType));
             _anyDerived = anyDerived;
@@ -19,7 +19,7 @@ namespace EventOutcomes
 
             if ((!_anyDerived && thrownExceptionType != _expectedExceptionType) || (_anyDerived && !_expectedExceptionType.IsAssignableFrom(thrownExceptionType)))
             {
-                throw new AssertException($"Exception assertion failed. Expected exception type was {_expectedExceptionType.Name} but type of thrown exception was {thrownExceptionType.Name}.");
+                throw new AssertException($"Exception of unexpected type was thrown.{Environment.NewLine}Expected: {_expectedExceptionType.Name}.{Environment.NewLine}Actual: {thrownExceptionType.Name}.");
             }
         }
     }

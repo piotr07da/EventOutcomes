@@ -3,12 +3,12 @@ using System.Text.RegularExpressions;
 
 namespace EventOutcomes
 {
-    public sealed class ExceptionMessageAssertion : IExceptionAssertion
+    public sealed class MessageExceptionAssertion : IExceptionAssertion
     {
         private readonly string _expectedMessage;
-        private readonly ExceptionMessageAssertionType _matchingType;
+        private readonly MessageExceptionAssertionType _matchingType;
 
-        public ExceptionMessageAssertion(string expectedMessage, ExceptionMessageAssertionType matchingType)
+        public MessageExceptionAssertion(string expectedMessage, MessageExceptionAssertionType matchingType)
         {
             _expectedMessage = expectedMessage;
             _matchingType = matchingType;
@@ -20,7 +20,7 @@ namespace EventOutcomes
 
             switch (_matchingType)
             {
-                case ExceptionMessageAssertionType.Equals:
+                case MessageExceptionAssertionType.Equals:
                     if (!string.Equals(_expectedMessage, exceptionMessage, StringComparison.OrdinalIgnoreCase))
                     {
                         ThrowAssertException(_matchingType.ToString(), exception);
@@ -28,7 +28,7 @@ namespace EventOutcomes
 
                     break;
 
-                case ExceptionMessageAssertionType.Contains:
+                case MessageExceptionAssertionType.Contains:
                     if (!exceptionMessage.ToLower().Contains(_expectedMessage.ToLower()))
                     {
                         ThrowAssertException(_matchingType.ToString(), exception);
@@ -36,7 +36,7 @@ namespace EventOutcomes
 
                     break;
 
-                case ExceptionMessageAssertionType.MatchesRegex:
+                case MessageExceptionAssertionType.MatchesRegex:
                     if (!new Regex(_expectedMessage).IsMatch(exceptionMessage))
                     {
                         ThrowAssertException(_matchingType.ToString(), exception);
@@ -48,13 +48,13 @@ namespace EventOutcomes
 
         private void ThrowAssertException(string assertionTypeName, Exception thrownException)
         {
-            throw new AssertException($"Exception message assertion of type {assertionTypeName} failed.{Environment.NewLine}Expected: {_expectedMessage}{Environment.NewLine}Actual: {thrownException.Message}{Environment.NewLine}Thrown exception:{Environment.NewLine}{thrownException}");
+            throw new AssertException($"Exception with unexpected message was thrown.{Environment.NewLine}Exception message assertion of type {assertionTypeName} failed.{Environment.NewLine}Expected: {_expectedMessage}{Environment.NewLine}Actual: {thrownException.Message}{Environment.NewLine}Thrown exception:{Environment.NewLine}{thrownException}");
         }
 
-        public static ExceptionMessageAssertion Equals(string expectedMessage) => new ExceptionMessageAssertion(expectedMessage, ExceptionMessageAssertionType.Equals);
+        public static MessageExceptionAssertion Equals(string expectedMessage) => new MessageExceptionAssertion(expectedMessage, MessageExceptionAssertionType.Equals);
 
-        public static ExceptionMessageAssertion Contains(string expectedMessage) => new ExceptionMessageAssertion(expectedMessage, ExceptionMessageAssertionType.Contains);
+        public static MessageExceptionAssertion Contains(string expectedMessage) => new MessageExceptionAssertion(expectedMessage, MessageExceptionAssertionType.Contains);
 
-        public static ExceptionMessageAssertion MatchesRegex(string expectedMessage) => new ExceptionMessageAssertion(expectedMessage, ExceptionMessageAssertionType.MatchesRegex);
+        public static MessageExceptionAssertion MatchesRegex(string expectedMessage) => new MessageExceptionAssertion(expectedMessage, MessageExceptionAssertionType.MatchesRegex);
     }
 }

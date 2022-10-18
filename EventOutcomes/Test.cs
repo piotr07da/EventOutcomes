@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,23 +11,25 @@ namespace EventOutcomes
     {
         private readonly string _eventStreamId;
 
-        public Test()
+        private Test()
         {
         }
 
-        public Test(string eventStreamId)
+        private Test(string eventStreamId)
         {
             _eventStreamId = eventStreamId;
         }
 
-        public IList<Action<IServiceProvider>> ArrangeActions { get; } = new List<Action<IServiceProvider>>();
-        public IDictionary<string, IEnumerable<object>> ArrangeEvents { get; } = new Dictionary<string, IEnumerable<object>>();
-        public IList<object> ActCommands { get; } = new List<object>();
-        public IDictionary<string, EventAssertionsChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventAssertionsChain>();
-        public IList<Func<IServiceProvider, Task<AssertActionResult>>> AssertActions { get; } = new List<Func<IServiceProvider, Task<AssertActionResult>>>();
-        public IList<IExceptionAssertion> AssertExceptionAssertions { get; } = new List<IExceptionAssertion>();
+        internal IList<Action<IServiceProvider>> ArrangeActions { get; } = new List<Action<IServiceProvider>>();
+        internal IDictionary<string, IEnumerable<object>> ArrangeEvents { get; } = new Dictionary<string, IEnumerable<object>>();
+        internal IList<object> ActCommands { get; } = new List<object>();
+        internal IDictionary<string, EventAssertionsChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventAssertionsChain>();
+        internal IList<Func<IServiceProvider, Task<AssertActionResult>>> AssertActions { get; } = new List<Func<IServiceProvider, Task<AssertActionResult>>>();
+        internal IList<IExceptionAssertion> AssertExceptionAssertions { get; } = new List<IExceptionAssertion>();
 
-        public string EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For method to create the Test object for specified stream Id.");
+        internal string EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For(eventStreamId) method to create the Test object for specific stream Id.");
+
+        public static Test ForMany() => new Test();
 
         public static Test For(Guid eventStreamId) => For(eventStreamId.ToString());
 
@@ -92,12 +95,17 @@ namespace EventOutcomes
             return this;
         }
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Test AllowExtra() => AllowExtra(EventStreamId);
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Test AllowExtra(Guid eventStreamId) => AllowExtra(eventStreamId.ToString());
 
+        [EditorBrowsable(EditorBrowsableState.Never)]
         public Test AllowExtra(string eventStreamId)
         {
+            // The idea is to allow for extra events in ThenInOrder and ThenInAnyOrder. For example, after enabling AllowExtra the following chain of events A, X, B, Y, C, Z matches following assertion ThenInOrder(A, B, C).
+            // Maybe instead of changing behavior globally by calling AllowExtra there should rather be a parameter in ThenInOrder and ThenInAnyOrder methods.
             throw new NotImplementedException();
         }
 
@@ -129,7 +137,7 @@ namespace EventOutcomes
 
         public Test ThenInAnyOrder(Guid eventStreamId, params object[] expectedEvents) => ThenInAnyOrder(eventStreamId.ToString(), expectedEvents);
 
-        public Test ThenInAnyOrder(string eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.OutOfOrder);
+        public Test ThenInAnyOrder(string eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InAnyOrder);
 
         public Test ThenNone() => ThenNone(EventStreamId);
 
@@ -219,24 +227,48 @@ namespace EventOutcomes
             return this;
         }
 
-        public Test ThenAnyException<TExpectedException>(string expectedMessage, ExceptionMessageAssertionType matchingType)
+        public Test ThenException(Func<Exception, bool> expectedExceptionCondition)
+        {
+            ThenException(new ConditionExceptionAssertion(expectedExceptionCondition));
+            return this;
+        }
+
+        public Test ThenAnyException<TExpectedException>(Func<TExpectedException, bool> expectedExceptionCondition)
+            where TExpectedException : Exception
+        {
+            ThenException(
+                new TypeExceptionAssertion(typeof(TExpectedException), true),
+                new ConditionExceptionAssertion(e => expectedExceptionCondition(e as TExpectedException)));
+            return this;
+        }
+
+        public Test ThenException<TExpectedException>(Func<TExpectedException, bool> expectedExceptionCondition)
+            where TExpectedException : Exception
+        {
+            ThenException(
+                new TypeExceptionAssertion(typeof(TExpectedException), false),
+                new ConditionExceptionAssertion(e => expectedExceptionCondition(e as TExpectedException)));
+            return this;
+        }
+
+        public Test ThenAnyException<TExpectedException>(string expectedMessage, MessageExceptionAssertionType matchingType)
             where TExpectedException : Exception
         {
             return ThenException<TExpectedException>(true, expectedMessage, matchingType);
         }
 
-        public Test ThenException<TExpectedException>(string expectedMessage, ExceptionMessageAssertionType matchingType)
+        public Test ThenException<TExpectedException>(string expectedMessage, MessageExceptionAssertionType matchingType)
             where TExpectedException : Exception
         {
             return ThenException<TExpectedException>(false, expectedMessage, matchingType);
         }
 
-        private Test ThenException<TExpectedException>(bool anyDerived, string expectedMessage, ExceptionMessageAssertionType matchingType)
+        private Test ThenException<TExpectedException>(bool anyDerived, string expectedMessage, MessageExceptionAssertionType matchingType)
             where TExpectedException : Exception
         {
             return ThenException(
-                new ExceptionTypeAssertion(typeof(TExpectedException), anyDerived),
-                new ExceptionMessageAssertion(expectedMessage, matchingType));
+                new TypeExceptionAssertion(typeof(TExpectedException), anyDerived),
+                new MessageExceptionAssertion(expectedMessage, matchingType));
         }
 
         public Test ThenException<TExpectedException>()
@@ -254,12 +286,12 @@ namespace EventOutcomes
         private Test ThenException<TExpectedException>(bool anyDerived)
             where TExpectedException : Exception
         {
-            return ThenException(new ExceptionTypeAssertion(typeof(TExpectedException), anyDerived));
+            return ThenException(new TypeExceptionAssertion(typeof(TExpectedException), anyDerived));
         }
 
-        public Test ThenException(string expectedMessage, ExceptionMessageAssertionType matchingType)
+        public Test ThenException(string expectedMessage, MessageExceptionAssertionType matchingType)
         {
-            return ThenException(new ExceptionMessageAssertion(expectedMessage, matchingType));
+            return ThenException(new MessageExceptionAssertion(expectedMessage, matchingType));
         }
 
         public Test ThenException(params IExceptionAssertion[] exceptionAssertions)

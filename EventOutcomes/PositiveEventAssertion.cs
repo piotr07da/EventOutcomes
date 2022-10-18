@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace EventOutcomes
 {
-    public sealed class PositiveEventAssertion
+    internal sealed class PositiveEventAssertion
     {
         public PositiveEventAssertion(object[] expectedEvents, PositiveEventAssertionOrder order)
         {
@@ -20,7 +20,7 @@ namespace EventOutcomes
         {
             for (var eIx = 0; eIx < events.Length - ExpectedEvents.Length + 1; ++eIx)
             {
-                var eventsToAssert = events.Range(eIx, eIx + ExpectedEvents.Length);
+                var eventsToAssert = events.Range(eIx, eIx + ExpectedEvents.Length - 1);
                 if (Assert(eventsToAssert))
                 {
                     return eIx;
@@ -47,7 +47,7 @@ namespace EventOutcomes
                 return CheckInOrder(events);
             }
 
-            if (Order == PositiveEventAssertionOrder.OutOfOrder)
+            if (Order == PositiveEventAssertionOrder.InAnyOrder)
             {
                 return CheckOutOfOrder(events);
             }
@@ -101,12 +101,6 @@ namespace EventOutcomes
             }
 
             return false;
-        }
-
-        public override string ToString()
-        {
-            var serializedExpectedEvents = ExpectedEvents.Select(ComparableEventDocument.From);
-            return string.Join(Environment.NewLine, serializedExpectedEvents.Select((pe, ix) => $"[{pe.EventType}]{Environment.NewLine}{pe.Content}"));
         }
     }
 }

@@ -36,9 +36,17 @@ public class api_tests_for_None
             .When(new FirstCommand())
             .ThenNone();
 
-        await Assert.ThrowsAsync<AssertException>(async () =>
+        var assertException = await Assert.ThrowsAsync<AssertException>(async () =>
         {
             await Tester.TestAsync(t, having);
         });
+
+        Assert.Equal(@"Expected no events.
+
+Unexpected published event found at [0].
+Published events are:
+0. [EventOutcomes.Tests.FirstSampleEvent]
+{""V"":1}
+", assertException.Message);
     }
 }

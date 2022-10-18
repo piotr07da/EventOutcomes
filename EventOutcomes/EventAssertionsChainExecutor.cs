@@ -5,7 +5,7 @@ using System.Text;
 
 namespace EventOutcomes
 {
-    public sealed class EventAssertionsChainExecutor
+    internal sealed class EventAssertionsChainExecutor
     {
         public static void Execute(EventAssertionsChain assertionChain, IEnumerable<object> events)
         {
@@ -18,7 +18,7 @@ namespace EventOutcomes
             {
                 if (events.Length > 0)
                 {
-                    Fail(events, 0, "None", 0, events.Length - 1);
+                    FailAtNegative(events, "Expected no events.", 0);
                 }
 
                 return;
@@ -46,12 +46,12 @@ namespace EventOutcomes
                         var aIx = positiveAssertion.FindAssertionIndex(events);
                         if (aIx < 0)
                         {
-                            Fail(originalEvents, cIx, positiveAssertion.ToString(), originalEvents.Length - events.Length, originalEvents.Length - 1);
+                            FailAtPositive(originalEvents, positiveAssertion, originalEvents.Length - events.Length, originalEvents.Length - 1);
                         }
 
-                        if (!negativeCheck.Assert(events.RangeTo(aIx)))
+                        if (!negativeCheck.Assert(events.RangeTo(aIx - 1), out var failAt))
                         {
-                            Fail(originalEvents, cIx - 1, negativeCheck.ToString(), originalEvents.Length - events.Length, aIx - 1);
+                            FailAtNegative(originalEvents, negativeCheck, originalEvents.Length - events.Length + failAt);
                         }
 
                         events = events.RangeFrom(aIx + positiveAssertion.ExpectedEvents.Length);
@@ -60,7 +60,11 @@ namespace EventOutcomes
                     {
                         if (!positiveAssertion.Assert(events))
                         {
-                            Fail(originalEvents, cIx, positiveAssertion.ToString(), originalEvents.Length - events.Length, originalEvents.Length - events.Length + positiveAssertion.ExpectedEvents.Length - 1);
+                            FailAtPositive(
+                                originalEvents,
+                                positiveAssertion,
+                                Math.Min(originalEvents.Length - events.Length, originalEvents.Length - 1),
+                                Math.Min(originalEvents.Length - events.Length + positiveAssertion.ExpectedEvents.Length - 1, originalEvents.Length - 1));
                         }
 
                         events = events.RangeFrom(positiveAssertion.ExpectedEvents.Length);
@@ -70,7 +74,7 @@ namespace EventOutcomes
                     {
                         if (events.Length > 0)
                         {
-                            Fail(originalEvents, cIx, positiveAssertion.ToString(), originalEvents.Length - events.Length, originalEvents.Length - 1);
+                            FailAtPositive(originalEvents, positiveAssertion, originalEvents.Length - events.Length, originalEvents.Length - 1);
                         }
                     }
                 }
@@ -84,31 +88,99 @@ namespace EventOutcomes
 
                     if (cIx == assertions.Count - 1)
                     {
-                        if (!negativeAssertion.Assert(events))
+                        if (!negativeAssertion.Assert(events, out var failAt))
                         {
-                            Fail(originalEvents, cIx, negativeAssertion.ToString(), originalEvents.Length - events.Length, originalEvents.Length - 1);
+                            FailAtNegative(originalEvents, negativeAssertion, originalEvents.Length - events.Length + failAt);
                         }
                     }
+                }
+                else
+                {
+                    throw new Exception($"{check.GetType().FullName} is not correct type of event assertion.");
                 }
             }
         }
 
-        private static void Fail(IEnumerable<object> publishedEvents, int assertionIndex, string assertionInfo, int failFrom, int failTo)
+        private static void FailAtPositive(IEnumerable<object> publishedEvents, PositiveEventAssertion positiveAssertion, int failFrom, int failTo)
         {
-            throw new AssertException(FormatExpectedAndPublishedEventsMessage(publishedEvents, assertionIndex, assertionInfo, failFrom, failTo));
+            FailAtPositive(publishedEvents, PositiveAssertionExpectationInfo(positiveAssertion), failFrom, failTo);
         }
 
-        private static string FormatExpectedAndPublishedEventsMessage(IEnumerable<object> publishedEvents, int assertionIndex, string assertionInfo, int failFrom, int failTo)
+        private static void FailAtPositive(IEnumerable<object> publishedEvents, string positiveAssertionInfo, int failFrom, int failTo)
+        {
+            var serializedPublishedEvents = publishedEvents.Select(ComparableEventDocument.From).ToArray();
+            var sb = new StringBuilder();
+            sb.AppendLine($"{positiveAssertionInfo}");
+            sb.AppendLine();
+
+            if (serializedPublishedEvents.Length == 0)
+            {
+                sb.AppendLine("No events were published.");
+            }
+            else
+            {
+                if (failFrom == failTo)
+                {
+                    sb.AppendLine($"Unexpected published event found at [{failFrom}].");
+                }
+                else
+                {
+                    sb.AppendLine($"Unexpected published events found in range [{failFrom}..{failTo}].");
+                }
+
+                sb.AppendLine("Published events are:");
+                sb.AppendLine(string.Join(Environment.NewLine, serializedPublishedEvents.Select((pe, ix) => $"{ix}. [{pe.EventType}]{Environment.NewLine}{pe.Content}")));
+            }
+
+            throw new AssertException(sb.ToString());
+        }
+
+        private static string PositiveAssertionExpectationInfo(PositiveEventAssertion positiveAssertion)
+        {
+            var builder = new StringBuilder();
+            builder.Append("Expected following events ");
+            switch (positiveAssertion.Order)
+            {
+                case PositiveEventAssertionOrder.InOrder:
+                    builder.AppendLine("in specified order:");
+                    break;
+
+                case PositiveEventAssertionOrder.InAnyOrder:
+                    builder.AppendLine("in any order:");
+                    break;
+
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(positiveAssertion.Order));
+            }
+
+            var serializedExpectedEvents = positiveAssertion.ExpectedEvents.Select(ComparableEventDocument.From);
+            builder.Append(string.Join(Environment.NewLine, serializedExpectedEvents.Select((pe, ix) => $"[{pe.EventType}]{Environment.NewLine}{pe.Content}")));
+            return builder.ToString();
+        }
+
+        private static void FailAtNegative(IEnumerable<object> publishedEvents, NegativeEventAssertion negativeAssertion, int failAt)
+        {
+            FailAtNegative(publishedEvents, NegativeAssertionExpectationInfo(negativeAssertion), failAt);
+        }
+
+        private static void FailAtNegative(IEnumerable<object> publishedEvents, string negativeAssertionInfo, int failAt)
         {
             var serializedPublishedEvents = publishedEvents.Select(ComparableEventDocument.From);
-
             var sb = new StringBuilder();
-            sb.AppendLine($"Assertion with index {assertionIndex} failed between event {failFrom} and {failTo}.");
-            sb.AppendLine($"Assertion with index {assertionIndex} is:");
-            sb.AppendLine($"{assertionInfo}");
+            sb.AppendLine($"{negativeAssertionInfo}");
             sb.AppendLine();
-            sb.AppendLine($"Published events are:{Environment.NewLine}{string.Join(Environment.NewLine, serializedPublishedEvents.Select((pe, ix) => $"{ix}. [{pe.EventType}]{Environment.NewLine}{pe.Content}"))}");
-            return sb.ToString();
+            sb.AppendLine($"Unexpected published event found at [{failAt}].");
+            sb.AppendLine("Published events are:");
+            sb.AppendLine(string.Join(Environment.NewLine, serializedPublishedEvents.Select((pe, ix) => $"{ix}. [{pe.EventType}]{Environment.NewLine}{pe.Content}")));
+
+            throw new AssertException(sb.ToString());
+        }
+
+        private static string NegativeAssertionExpectationInfo(NegativeEventAssertion negativeAssertion)
+        {
+            var builder = new StringBuilder();
+            builder.Append($"Expected not to find any event matching {negativeAssertion.ExcludedEventQualifiers.Length} specified rule{(negativeAssertion.ExcludedEventQualifiers.Length == 1 ? string.Empty : "s")}.");
+            return builder.ToString();
         }
     }
 }

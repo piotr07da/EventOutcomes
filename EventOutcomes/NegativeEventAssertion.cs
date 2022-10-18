@@ -3,7 +3,7 @@ using System.Linq;
 
 namespace EventOutcomes
 {
-    public sealed class NegativeEventAssertion
+    internal sealed class NegativeEventAssertion
     {
         public NegativeEventAssertion(Func<object, bool>[] excludedEventQualifiers)
         {
@@ -12,24 +12,21 @@ namespace EventOutcomes
 
         public Func<object, bool>[] ExcludedEventQualifiers { get; }
 
-        public static NegativeEventAssertion Empty => new NegativeEventAssertion(Array.Empty<Func<object, bool>>());
-
-        public bool Assert(object[] publishedEvents)
+        public bool Assert(object[] publishedEvents, out int failAtIndex)
         {
-            foreach (var e in publishedEvents)
+            for (var peIx = 0; peIx < publishedEvents.Length; ++peIx)
             {
+                var e = publishedEvents[peIx];
+
                 if (ExcludedEventQualifiers.Any(eeq => eeq(e)))
                 {
+                    failAtIndex = peIx;
                     return false;
                 }
             }
 
+            failAtIndex = -1;
             return true;
-        }
-
-        public override string ToString()
-        {
-            return "NegativeCheck";
         }
     }
 }

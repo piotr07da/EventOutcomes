@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace EventOutcomes
@@ -30,7 +31,7 @@ namespace EventOutcomes
 
         public static async Task TestAsync(Func<Test, Test> testSetup, IAdapter adapter)
         {
-            var test = testSetup(new Test());
+            var test = testSetup(Test.ForMany());
             var tester = new Tester(test, adapter);
 
             await tester.InternalTestAsync();
@@ -108,9 +109,15 @@ namespace EventOutcomes
                 {
                     var streamsWithPublishedEvents = await _adapter.GetPublishedEventsAsync();
 
-                    var savedAggregatesChanges = streamsWithPublishedEvents.SelectMany(streamKvp => streamKvp.Value);
+                    var savedAggregatesChanges = streamsWithPublishedEvents.SelectMany(streamKvp => streamKvp.Value).ToArray();
 
-                    throw new AssertException($"At least one exception assertion has been defined but no exception has been thrown. Following events were produced instead: [{string.Join(", ", savedAggregatesChanges.Select(e => e.GetType().Name))}].");
+                    var messageBuilder = new StringBuilder("Exception was expected but no exception was thrown.");
+                    if (savedAggregatesChanges.Length > 0)
+                    {
+                        messageBuilder.Append($" Following events were produced instead: [{string.Join(", ", savedAggregatesChanges.Select(e => e.GetType().Name))}].");
+                    }
+
+                    throw new AssertException(messageBuilder.ToString());
                 }
 
                 foreach (var exceptionAssertion in exceptionAssertions)

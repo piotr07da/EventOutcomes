@@ -4,7 +4,7 @@ using System.Linq;
 
 namespace EventOutcomes
 {
-    public sealed class EventAssertionsChain
+    internal sealed class EventAssertionsChain
     {
         private readonly List<object> _assertions = new List<object>();
 

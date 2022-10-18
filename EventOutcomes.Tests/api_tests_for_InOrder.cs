@@ -27,6 +27,33 @@ public class api_tests_for_InOrder
     }
 
     [Fact]
+    public async Task having_no_events_published_when_Test_for_InOrder_assertion_then_exception_thrown()
+    {
+        var having = EventOutcomesTesterAdapter.Stub(_streamId, Array.Empty<object>());
+
+        var t = Test.For(_streamId)
+            .Given()
+            .When(new FirstCommand())
+            .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
+
+        var assertException = await Assert.ThrowsAsync<AssertException>(async () =>
+        {
+            await Tester.TestAsync(t, having);
+        });
+
+        Assert.Equal(@"Expected following events in specified order:
+[EventOutcomes.Tests.FirstSampleEvent]
+{""V"":1}
+[EventOutcomes.Tests.FirstSampleEvent]
+{""V"":999}
+[EventOutcomes.Tests.SecondSampleEvent]
+{""V"":""abc123""}
+
+No events were published.
+", assertException.Message);
+    }
+
+    [Fact]
     public async Task having_the_same_events_in_different_order_when_Test_for_InOrder_assertion_then_exception_thrown()
     {
         var having = EventOutcomesTesterAdapter.Stub(_streamId, new SecondSampleEvent("abc123"), new FirstSampleEvent(1), new FirstSampleEvent(999));
@@ -36,7 +63,7 @@ public class api_tests_for_InOrder
             .When(new FirstCommand())
             .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
 
-        await Assert.ThrowsAsync<AssertException>(async () =>
+        var assertException = await Assert.ThrowsAsync<AssertException>(async () =>
         {
             await Tester.TestAsync(t, having);
         });
@@ -52,7 +79,7 @@ public class api_tests_for_InOrder
             .When(new FirstCommand())
             .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(999), new SecondSampleEvent("abc123"));
 
-        await Assert.ThrowsAsync<AssertException>(async () =>
+        var assertException = await Assert.ThrowsAsync<AssertException>(async () =>
         {
             await Tester.TestAsync(t, having);
         });

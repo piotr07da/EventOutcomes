@@ -21,7 +21,7 @@ public class api_tests_for_Exceptions_by_message
         var t = Test.For(_streamId)
             .Given()
             .When(new FirstCommand())
-            .ThenException("abc def ghi", ExceptionMessageAssertionType.Equals);
+            .ThenException("abc def ghi", MessageExceptionAssertionType.Equals);
 
         await Tester.TestAsync(t, having);
     }
@@ -34,7 +34,7 @@ public class api_tests_for_Exceptions_by_message
         var t = Test.For(_streamId)
             .Given()
             .When(new FirstCommand())
-            .ThenException("bc de", ExceptionMessageAssertionType.Contains);
+            .ThenException("bc de", MessageExceptionAssertionType.Contains);
 
         await Tester.TestAsync(t, having);
     }
@@ -47,7 +47,7 @@ public class api_tests_for_Exceptions_by_message
         var t = Test.For(_streamId)
             .Given()
             .When(new FirstCommand())
-            .ThenException("[a-c]{3}\\s[d-f]{3}\\s[g-i]{3}", ExceptionMessageAssertionType.MatchesRegex);
+            .ThenException("[a-c]{3}\\s[d-f]{3}\\s[g-i]{3}", MessageExceptionAssertionType.MatchesRegex);
 
         await Tester.TestAsync(t, having);
     }
@@ -60,7 +60,7 @@ public class api_tests_for_Exceptions_by_message
         var t = Test.For(_streamId)
             .Given()
             .When(new FirstCommand())
-            .ThenException("abc def ghi jkl", ExceptionMessageAssertionType.Equals);
+            .ThenException("abc def ghi jkl", MessageExceptionAssertionType.Equals);
 
         await Assert.ThrowsAsync<AssertException>(async () =>
         {
@@ -76,7 +76,7 @@ public class api_tests_for_Exceptions_by_message
         var t = Test.For(_streamId)
             .Given()
             .When(new FirstCommand())
-            .ThenException("bc ee", ExceptionMessageAssertionType.Contains);
+            .ThenException("bc ee", MessageExceptionAssertionType.Contains);
 
         await Assert.ThrowsAsync<AssertException>(async () =>
         {
@@ -92,7 +92,7 @@ public class api_tests_for_Exceptions_by_message
         var t = Test.For(_streamId)
             .Given()
             .When(new FirstCommand())
-            .ThenException("[a-c]{4}\\s[d-f]{3}\\s[g-i]{3}", ExceptionMessageAssertionType.MatchesRegex);
+            .ThenException("[a-c]{4}\\s[d-f]{3}\\s[g-i]{3}", MessageExceptionAssertionType.MatchesRegex);
 
         await Assert.ThrowsAsync<AssertException>(async () =>
         {

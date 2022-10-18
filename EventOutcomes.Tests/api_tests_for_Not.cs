@@ -14,7 +14,7 @@ public class api_tests_for_Not
     }
 
     [Fact]
-    public async Task having_events_published_but_non_of_them_qualifies_as_excluded_when_Test_for_Not_assertion_then_NO_exception_thrown()
+    public async Task having_events_published_but_none_of_them_qualifies_as_excluded_when_Test_for_Not_assertion_then_NO_exception_thrown()
     {
         var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(8), new SecondSampleEvent("x"));
 
@@ -40,9 +40,19 @@ public class api_tests_for_Not
                 e => e is FirstSampleEvent { V: 999, },
                 e => e is SecondSampleEvent { V: "x", });
 
-        await Assert.ThrowsAsync<AssertException>(async () =>
+        var assertException = await Assert.ThrowsAsync<AssertException>(async () =>
         {
             await Tester.TestAsync(t, having);
         });
+
+        Assert.Equal(@"Expected not to find any event matching 2 specified rules.
+
+Unexpected published event found at [1].
+Published events are:
+0. [EventOutcomes.Tests.FirstSampleEvent]
+{""V"":8}
+1. [EventOutcomes.Tests.SecondSampleEvent]
+{""V"":""x""}
+", assertException.Message);
     }
 }
