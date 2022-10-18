@@ -27,7 +27,7 @@ namespace EventOutcomes
         internal IList<Func<IServiceProvider, Task<AssertActionResult>>> AssertActions { get; } = new List<Func<IServiceProvider, Task<AssertActionResult>>>();
         internal IList<IExceptionAssertion> AssertExceptionAssertions { get; } = new List<IExceptionAssertion>();
 
-        internal string EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For(eventStreamId) method to create the Test object for specific stream Id.");
+        public string EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For(eventStreamId) method to create the Test object for specific stream Id.");
 
         public static Test ForMany() => new Test();
 
