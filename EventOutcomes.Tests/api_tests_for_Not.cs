@@ -45,7 +45,8 @@ public class api_tests_for_Not
             await Tester.TestAsync(t, having);
         });
 
-        Assert.Equal(@"Expected not to find any event matching 2 specified rules.
+        Assert.Equal(@"
+Expected not to find any event matching 2 specified rules.
 
 Unexpected published event found at [1].
 Published events are:

@@ -41,6 +41,7 @@ public class api_tests_for_Exceptions_by_condition
             await Tester.TestAsync(t, having);
         });
 
-        Assert.Equal(@"Unexpected exception was thrown. Thrown exception did not match specified condition.", assertException.Message);
+        Assert.Equal(@"
+Unexpected exception was thrown. Thrown exception did not match specified condition.", assertException.Message);
     }
 }

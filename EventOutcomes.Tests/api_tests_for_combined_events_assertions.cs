@@ -65,7 +65,8 @@ public class api_tests_for_combined_events_assertions
             await Tester.TestAsync(t, having);
         });
 
-        Assert.StartsWith(@"Expected not to find any event matching 2 specified rules.
+        Assert.StartsWith(@"
+Expected not to find any event matching 2 specified rules.
 
 Unexpected published event found at [0].
 Published events are:", assertException.Message);
@@ -89,7 +90,8 @@ Published events are:", assertException.Message);
             await Tester.TestAsync(t, having);
         });
 
-        Assert.StartsWith(@"Expected following events in specified order:
+        Assert.StartsWith(@"
+Expected following events in specified order:
 [EventOutcomes.Tests.FirstSampleEvent]
 {""V"":88}
 [EventOutcomes.Tests.SecondSampleEvent]
@@ -118,7 +120,8 @@ Published events are:", assertException.Message);
             await Tester.TestAsync(t, having);
         });
 
-        Assert.StartsWith(@"Expected following events in specified order:
+        Assert.StartsWith(@"
+Expected following events in specified order:
 [EventOutcomes.Tests.FirstSampleEvent]
 {""V"":88}
 [EventOutcomes.Tests.SecondSampleEvent]
@@ -147,7 +150,8 @@ Published events are:", assertException.Message);
             await Tester.TestAsync(t, having);
         });
 
-        Assert.StartsWith(@"Expected not to find any event matching 2 specified rules.
+        Assert.StartsWith(@"
+Expected not to find any event matching 2 specified rules.
 
 Unexpected published event found at [3].
 Published events are:", assertException.Message);

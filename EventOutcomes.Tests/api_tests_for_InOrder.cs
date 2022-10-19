@@ -41,7 +41,8 @@ public class api_tests_for_InOrder
             await Tester.TestAsync(t, having);
         });
 
-        Assert.Equal(@"Expected following events in specified order:
+        Assert.Equal(@"
+Expected following events in specified order:
 [EventOutcomes.Tests.FirstSampleEvent]
 {""V"":1}
 [EventOutcomes.Tests.FirstSampleEvent]

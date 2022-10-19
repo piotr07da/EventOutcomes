@@ -41,7 +41,8 @@ public class api_tests_for_None
             await Tester.TestAsync(t, having);
         });
 
-        Assert.Equal(@"Expected no events.
+        Assert.Equal(@"
+Expected no events.
 
 Unexpected published event found at [0].
 Published events are:
