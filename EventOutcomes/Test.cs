@@ -79,7 +79,9 @@ namespace EventOutcomes
         {
             if (ArrangeEvents.TryGetValue(eventStreamId, out var currentInitializationEvents))
             {
-                ArrangeEvents[eventStreamId] = currentInitializationEvents.Union(initializationEvents).ToArray();
+                var list = currentInitializationEvents.ToList();
+                list.AddRange(initializationEvents);
+                ArrangeEvents[eventStreamId] = list.ToArray();
             }
             else
             {
