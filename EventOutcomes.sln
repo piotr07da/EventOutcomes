@@ -3,9 +3,30 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32516.85
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventOutcomes", "EventOutcomes\EventOutcomes.csproj", "{A5A9B380-312F-4322-A000-9A0C8BB9218F}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{12A08E73-6D1B-43CA-BF14-4E0D63E81ADE}"
+	ProjectSection(SolutionItems) = preProject
+		LICENSE = LICENSE
+		README.md = README.md
+	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventOutcomes.Tests", "EventOutcomes.Tests\EventOutcomes.Tests.csproj", "{C7CC214E-E4EF-406F-A46C-CAD62E9355BA}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "githubworkflow", "githubworkflow", "{4CD8F8AB-28C7-4B54-8BF1-DA9ECEFF695A}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build-n-publish.yml = .github\workflows\build-n-publish.yml
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{B97F84FE-85BC-4129-80A1-2F057AD84098}"
+	ProjectSection(SolutionItems) = preProject
+		src\Directory.Build.props = src\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{D22F014E-F5F2-4672-BE89-FAE7CA831F36}"
+	ProjectSection(SolutionItems) = preProject
+		tests\Directory.Build.props = tests\Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventOutcomes", "src\EventOutcomes\EventOutcomes.csproj", "{97282A38-CD71-4A8A-8907-91FDE978BF2A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EventOutcomes.Tests", "tests\EventOutcomes.Tests\EventOutcomes.Tests.csproj", "{0104D078-15A1-4AEB-9FF9-F1FABC1F8E84}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,17 +34,22 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{A5A9B380-312F-4322-A000-9A0C8BB9218F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A5A9B380-312F-4322-A000-9A0C8BB9218F}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A5A9B380-312F-4322-A000-9A0C8BB9218F}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A5A9B380-312F-4322-A000-9A0C8BB9218F}.Release|Any CPU.Build.0 = Release|Any CPU
-		{C7CC214E-E4EF-406F-A46C-CAD62E9355BA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{C7CC214E-E4EF-406F-A46C-CAD62E9355BA}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{C7CC214E-E4EF-406F-A46C-CAD62E9355BA}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{C7CC214E-E4EF-406F-A46C-CAD62E9355BA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{97282A38-CD71-4A8A-8907-91FDE978BF2A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{97282A38-CD71-4A8A-8907-91FDE978BF2A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{97282A38-CD71-4A8A-8907-91FDE978BF2A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{97282A38-CD71-4A8A-8907-91FDE978BF2A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0104D078-15A1-4AEB-9FF9-F1FABC1F8E84}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0104D078-15A1-4AEB-9FF9-F1FABC1F8E84}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0104D078-15A1-4AEB-9FF9-F1FABC1F8E84}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0104D078-15A1-4AEB-9FF9-F1FABC1F8E84}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{4CD8F8AB-28C7-4B54-8BF1-DA9ECEFF695A} = {12A08E73-6D1B-43CA-BF14-4E0D63E81ADE}
+		{B97F84FE-85BC-4129-80A1-2F057AD84098} = {12A08E73-6D1B-43CA-BF14-4E0D63E81ADE}
+		{D22F014E-F5F2-4672-BE89-FAE7CA831F36} = {12A08E73-6D1B-43CA-BF14-4E0D63E81ADE}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {C24B5C63-A80C-4E53-A778-3E99704F97DF}
