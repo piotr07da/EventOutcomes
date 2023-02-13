@@ -23,7 +23,7 @@ public sealed class Test
     internal IList<Func<IServiceProvider, Task<AssertActionResult>>> AssertActions { get; } = new List<Func<IServiceProvider, Task<AssertActionResult>>>();
     internal IList<IExceptionAssertion> AssertExceptionAssertions { get; } = new List<IExceptionAssertion>();
 
-    public string EventStreamId => _eventStreamId ?? throw new Exception("Event stream Id has not been defined. Either call appropriate method overload or use Test.For(eventStreamId) method to create the Test object for specific stream Id.");
+    public string EventStreamId => _eventStreamId ?? throw new Exception("EventStreamId has not been defined. You must define it while creating a Test class instance by using Test.For(eventStreamId) factory method or you must define it while using Given(eventStreamId, ...) or Then(eventStreamId, ...) methods (in case when Test.ForMany() was used to create a Test class instance).");
 
     public static Test ForMany() => new();
 
