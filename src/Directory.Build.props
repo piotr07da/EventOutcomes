@@ -7,7 +7,7 @@
     <Company>Piotr Bejger</Company>
 	<Description>EventOutcomes is a free, open-source .NET library created to make writing unit tests for event sourced applications easier.</Description>
     <RepositoryUrl>https://github.com/piotr07da/EventOutcomes</RepositoryUrl>
-    <PackageTags>event; events; eventsourcing; eventdriven; unittesting; unittests; testing; tests; unit;</PackageTags>
+    <PackageTags>EventOutcomes; event; events; eventsourcing; eventdriven; unittesting; unittests; testing; tests; unit;</PackageTags>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
 	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
   </PropertyGroup>

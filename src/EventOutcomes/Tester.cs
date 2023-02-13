@@ -128,16 +128,58 @@ public sealed class Tester
         if (assertionsChainsForStreams is null) throw new ArgumentNullException(nameof(assertionsChainsForStreams));
         if (streamsWithPublishedEvents is null) throw new ArgumentNullException(nameof(streamsWithPublishedEvents));
 
+        var executionResults = new List<EventAssertionsChainExecutionResult>();
+
         foreach (var ac in assertionsChainsForStreams)
         {
-            var streamName = ac.Key;
+            var streamId = ac.Key;
             var assertionChain = ac.Value;
-            if (!streamsWithPublishedEvents.TryGetValue(streamName, out var publishedEvents))
+            if (!streamsWithPublishedEvents.TryGetValue(streamId, out var publishedEvents))
             {
                 publishedEvents = Array.Empty<object>();
             }
 
-            EventAssertionsChainExecutor.Execute(assertionChain, publishedEvents);
+            var executionResult = EventAssertionsChainExecutor.Execute(streamId, assertionChain, publishedEvents);
+            executionResults.Add(executionResult);
+        }
+
+        if (executionResults.Any(er => !er.Succeeded))
+        {
+            var exceptionMessageBuilder = new StringBuilder();
+            foreach (var executionResult in executionResults)
+            {
+                exceptionMessageBuilder.AppendLine("--------------------------------------------------------");
+                exceptionMessageBuilder.AppendLine($"RESULT FOR STREAM: {executionResult.StreamId}");
+                exceptionMessageBuilder.AppendLine();
+                if (executionResult.Succeeded)
+                {
+                    exceptionMessageBuilder.AppendLine("OK");
+                    exceptionMessageBuilder.AppendLine();
+                }
+                else
+                {
+                    exceptionMessageBuilder.Append(executionResult.ErrorMessage);
+                    exceptionMessageBuilder.AppendLine();
+                }
+            }
+
+            exceptionMessageBuilder.AppendLine("--------------------------------------------------------");
+            if (streamsWithPublishedEvents.Any())
+            {
+                exceptionMessageBuilder.AppendLine("Events were published to the following streams:");
+                foreach (var streamId in streamsWithPublishedEvents.Keys)
+                {
+                    exceptionMessageBuilder.AppendLine($"- {streamId}");
+                }
+            }
+            else
+            {
+                exceptionMessageBuilder.AppendLine("No events were published to any stream.");
+            }
+
+            exceptionMessageBuilder.AppendLine("--------------------------------------------------------");
+
+            throw new AssertException(exceptionMessageBuilder.ToString());
         }
     }
 

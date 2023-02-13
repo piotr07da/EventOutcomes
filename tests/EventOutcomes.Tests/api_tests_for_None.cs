@@ -41,13 +41,21 @@ public class api_tests_for_None
             await Tester.TestAsync(t, having);
         });
 
-        Assert.Equal(@"
+        Assert.Equal($@"
+--------------------------------------------------------
+RESULT FOR STREAM: {_streamId}
+
 Expected no events.
 
 Unexpected published event found at [0].
 Published events are:
 0. [EventOutcomes.Tests.FirstSampleEvent]
-{""V"":1}
+{{""V"":1}}
+
+--------------------------------------------------------
+Events were published to the following streams:
+- {_streamId}
+--------------------------------------------------------
 ", assertException.Message);
     }
 }

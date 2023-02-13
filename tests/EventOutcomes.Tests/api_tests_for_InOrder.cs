@@ -41,16 +41,24 @@ public class api_tests_for_InOrder
             await Tester.TestAsync(t, having);
         });
 
-        Assert.Equal(@"
+        Assert.Equal($@"
+--------------------------------------------------------
+RESULT FOR STREAM: {_streamId}
+
 Expected following events in specified order:
 [EventOutcomes.Tests.FirstSampleEvent]
-{""V"":1}
+{{""V"":1}}
 [EventOutcomes.Tests.FirstSampleEvent]
-{""V"":999}
+{{""V"":999}}
 [EventOutcomes.Tests.SecondSampleEvent]
-{""V"":""abc123""}
+{{""V"":""abc123""}}
 
-No events were published.
+No events were published to the stream '{_streamId}'.
+
+--------------------------------------------------------
+Events were published to the following streams:
+- {_streamId}
+--------------------------------------------------------
 ", assertException.Message);
     }
 

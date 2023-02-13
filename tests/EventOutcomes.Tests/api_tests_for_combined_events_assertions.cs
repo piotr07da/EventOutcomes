@@ -65,7 +65,10 @@ public class api_tests_for_combined_events_assertions
             await Tester.TestAsync(t, having);
         });
 
-        Assert.StartsWith(@"
+        Assert.StartsWith($@"
+--------------------------------------------------------
+RESULT FOR STREAM: {_streamId}
+
 Expected not to find any event matching 2 specified rules.
 
 Unexpected published event found at [0].
@@ -90,12 +93,15 @@ Published events are:", assertException.Message);
             await Tester.TestAsync(t, having);
         });
 
-        Assert.StartsWith(@"
+        Assert.StartsWith($@"
+--------------------------------------------------------
+RESULT FOR STREAM: {_streamId}
+
 Expected following events in specified order:
 [EventOutcomes.Tests.FirstSampleEvent]
-{""V"":88}
+{{""V"":88}}
 [EventOutcomes.Tests.SecondSampleEvent]
-{""V"":""xxXX""}
+{{""V"":""xxXX""}}
 
 Unexpected published events found in range [0..3].
 Published events are:", assertException.Message);
@@ -120,12 +126,15 @@ Published events are:", assertException.Message);
             await Tester.TestAsync(t, having);
         });
 
-        Assert.StartsWith(@"
+        Assert.StartsWith($@"
+--------------------------------------------------------
+RESULT FOR STREAM: {_streamId}
+
 Expected following events in specified order:
 [EventOutcomes.Tests.FirstSampleEvent]
-{""V"":88}
+{{""V"":88}}
 [EventOutcomes.Tests.SecondSampleEvent]
-{""V"":""xxXX""}
+{{""V"":""xxXX""}}
 
 Unexpected published events found in range [0..1].
 Published events are:", assertException.Message);
@@ -150,7 +159,10 @@ Published events are:", assertException.Message);
             await Tester.TestAsync(t, having);
         });
 
-        Assert.StartsWith(@"
+        Assert.StartsWith($@"
+--------------------------------------------------------
+RESULT FOR STREAM: {_streamId}
+
 Expected not to find any event matching 2 specified rules.
 
 Unexpected published event found at [3].
