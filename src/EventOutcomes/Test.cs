@@ -5,15 +5,8 @@ namespace EventOutcomes;
 
 public sealed class Test
 {
-    private readonly string? _eventStreamId;
-
     private Test()
     {
-    }
-
-    private Test(string eventStreamId)
-    {
-        _eventStreamId = eventStreamId;
     }
 
     internal IList<Action<IServiceProvider>> ArrangeActions { get; } = new List<Action<IServiceProvider>>();
@@ -22,14 +15,6 @@ public sealed class Test
     internal IDictionary<string, EventAssertionsChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventAssertionsChain>();
     internal IList<Func<IServiceProvider, Task<AssertActionResult>>> AssertActions { get; } = new List<Func<IServiceProvider, Task<AssertActionResult>>>();
     internal IList<IExceptionAssertion> AssertExceptionAssertions { get; } = new List<IExceptionAssertion>();
-
-    public string EventStreamId => _eventStreamId ?? throw new Exception("EventStreamId has not been defined. You must define it while creating a Test class instance by using Test.For(eventStreamId) factory method or you must define it while using Given(eventStreamId, ...) or Then(eventStreamId, ...) methods (in case when Test.ForMany() was used to create a Test class instance).");
-
-    public static Test ForMany() => new();
-
-    public static Test For(Guid eventStreamId) => For(eventStreamId.ToString());
-
-    public static Test For(string eventStreamId) => new(eventStreamId);
 
     public Test Given<TService, TFakeService>(Action<TFakeService> arrangeAction)
         where TService : notnull
@@ -65,15 +50,9 @@ public sealed class Test
         return this;
     }
 
-    public Test Given(IEnumerable<object> initializationEvents) => Given(EventStreamId, initializationEvents.ToArray());
+    public Test Given(EventStreamId eventStreamId, IEnumerable<object> initializationEvents) => Given(eventStreamId, initializationEvents.ToArray());
 
-    public Test Given(params object[] initializationEvents) => Given(EventStreamId, initializationEvents);
-
-    public Test Given(Guid eventStreamId, IEnumerable<object> initializationEvents) => Given(eventStreamId.ToString(), initializationEvents.ToArray());
-
-    public Test Given(Guid eventStreamId, params object[] initializationEvents) => Given(eventStreamId.ToString(), initializationEvents);
-
-    public Test Given(string eventStreamId, params object[] initializationEvents)
+    public Test Given(EventStreamId eventStreamId, params object[] initializationEvents)
     {
         if (ArrangeEvents.TryGetValue(eventStreamId, out var currentInitializationEvents))
         {
@@ -96,89 +75,30 @@ public sealed class Test
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
-    public Test AllowExtra() => AllowExtra(EventStreamId);
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Test AllowExtra(Guid eventStreamId) => AllowExtra(eventStreamId.ToString());
-
-    [EditorBrowsable(EditorBrowsableState.Never)]
-    public Test AllowExtra(string eventStreamId)
+    public Test AllowExtra(EventStreamId eventStreamId)
     {
         // The idea is to allow for extra events in ThenInOrder and ThenInAnyOrder. For example, after enabling AllowExtra the following chain of events A, X, B, Y, C, Z matches following assertion ThenInOrder(A, B, C).
         // Maybe instead of changing behavior globally by calling AllowExtra there should rather be a parameter in ThenInOrder and ThenInAnyOrder methods.
         throw new NotImplementedException();
     }
 
-    public Test ThenAny() => ThenAny(EventStreamId);
+    public Test ThenAny(EventStreamId eventStreamId) => ThenNegativeEventAssertion(eventStreamId, Array.Empty<Func<object, bool>>());
 
-    public Test ThenAny(Guid eventStreamId) => ThenAny(eventStreamId.ToString());
+    public Test ThenNot(EventStreamId eventStreamId, params Func<object, bool>[] excludedEventQualifiers) => ThenNegativeEventAssertion(eventStreamId, excludedEventQualifiers);
 
-    public Test ThenAny(string eventStreamId) => ThenNegativeEventAssertion(eventStreamId, Array.Empty<Func<object, bool>>());
+    public Test Then(EventStreamId eventStreamId, object expectedEvent) => ThenInOrder(eventStreamId, expectedEvent);
 
-    public Test ThenNot(params Func<object, bool>[] excludedEventQualifiers) => ThenNot(EventStreamId, excludedEventQualifiers);
+    public Test ThenInOrder(EventStreamId eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InOrder);
 
-    public Test ThenNot(Guid eventStreamId, params Func<object, bool>[] excludedEventQualifiers) => ThenNot(eventStreamId.ToString(), excludedEventQualifiers);
+    public Test ThenInAnyOrder(EventStreamId eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InAnyOrder);
 
-    public Test ThenNot(string eventStreamId, params Func<object, bool>[] excludedEventQualifiers) => ThenNegativeEventAssertion(eventStreamId, excludedEventQualifiers);
-
-    public Test Then(object expectedEvent) => Then(EventStreamId, expectedEvent);
-
-    public Test Then(Guid eventStreamId, object expectedEvent) => Then(eventStreamId.ToString(), expectedEvent);
-
-    public Test Then(string eventStreamId, object expectedEvent) => ThenInOrder(eventStreamId, expectedEvent);
-
-    public Test ThenInOrder(params object[] expectedEvents) => ThenInOrder(EventStreamId, expectedEvents);
-
-    public Test ThenInOrder(Guid eventStreamId, params object[] expectedEvents) => ThenInOrder(eventStreamId.ToString(), expectedEvents);
-
-    public Test ThenInOrder(string eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InOrder);
-
-    public Test ThenInAnyOrder(params object[] expectedEvents) => ThenInAnyOrder(EventStreamId, expectedEvents);
-
-    public Test ThenInAnyOrder(Guid eventStreamId, params object[] expectedEvents) => ThenInAnyOrder(eventStreamId.ToString(), expectedEvents);
-
-    public Test ThenInAnyOrder(string eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InAnyOrder);
-
-    public Test ThenNone() => ThenNone(EventStreamId);
-
-    public Test ThenNone(Guid eventStreamId) => ThenNone(eventStreamId.ToString());
-
-    public Test ThenNone(string eventStreamId)
+    public Test ThenNone(EventStreamId eventStreamId)
     {
         var checkChain = GetEventAssertionChain(eventStreamId);
 
         checkChain.AddNoneAssertion();
 
         return this;
-    }
-
-    private Test ThenNegativeEventAssertion(string eventStreamId, Func<object, bool>[] excludedEventQualifiers)
-    {
-        var checkChain = GetEventAssertionChain(eventStreamId);
-
-        checkChain.AddNegativeAssertion(new NegativeEventAssertion(excludedEventQualifiers));
-
-        return this;
-    }
-
-    private Test ThenPositiveEventAssertion(string eventStreamId, object[] expectedEvents, PositiveEventAssertionOrder order)
-    {
-        var checkChain = GetEventAssertionChain(eventStreamId);
-
-        checkChain.AddPositiveAssertion(new PositiveEventAssertion(expectedEvents, order));
-
-        return this;
-    }
-
-    private EventAssertionsChain GetEventAssertionChain(string eventStreamId)
-    {
-        if (!AssertEventAssertionsChains.TryGetValue(eventStreamId, out var checkChain))
-        {
-            checkChain = new EventAssertionsChain();
-            AssertEventAssertionsChains.Add(eventStreamId, checkChain);
-        }
-
-        return checkChain;
     }
 
     public Test Then<TService, TFakeService>(Func<TFakeService, AssertActionResult> assertAction)
@@ -267,14 +187,6 @@ public sealed class Test
         return ThenException<TExpectedException>(false, expectedMessage, matchingType);
     }
 
-    private Test ThenException<TExpectedException>(bool anyDerived, string expectedMessage, MessageExceptionAssertionType matchingType)
-        where TExpectedException : Exception
-    {
-        return ThenException(
-            new TypeExceptionAssertion(typeof(TExpectedException), anyDerived),
-            new MessageExceptionAssertion(expectedMessage, matchingType));
-    }
-
     public Test ThenException<TExpectedException>()
         where TExpectedException : Exception
     {
@@ -285,12 +197,6 @@ public sealed class Test
         where TExpectedException : Exception
     {
         return ThenException<TExpectedException>(true);
-    }
-
-    private Test ThenException<TExpectedException>(bool anyDerived)
-        where TExpectedException : Exception
-    {
-        return ThenException(new TypeExceptionAssertion(typeof(TExpectedException), anyDerived));
     }
 
     public Test ThenException(string expectedMessage, MessageExceptionAssertionType matchingType)
@@ -306,5 +212,54 @@ public sealed class Test
         }
 
         return this;
+    }
+
+    public static Test ForMany() => new();
+
+    public static TestForSingleStream For(Guid eventStreamId) => For(eventStreamId.ToString());
+
+    public static TestForSingleStream For(string eventStreamId) => new(new Test(), eventStreamId);
+
+    private Test ThenNegativeEventAssertion(string eventStreamId, Func<object, bool>[] excludedEventQualifiers)
+    {
+        var checkChain = GetEventAssertionChain(eventStreamId);
+
+        checkChain.AddNegativeAssertion(new NegativeEventAssertion(excludedEventQualifiers));
+
+        return this;
+    }
+
+    private Test ThenPositiveEventAssertion(string eventStreamId, object[] expectedEvents, PositiveEventAssertionOrder order)
+    {
+        var checkChain = GetEventAssertionChain(eventStreamId);
+
+        checkChain.AddPositiveAssertion(new PositiveEventAssertion(expectedEvents, order));
+
+        return this;
+    }
+
+    private EventAssertionsChain GetEventAssertionChain(string eventStreamId)
+    {
+        if (!AssertEventAssertionsChains.TryGetValue(eventStreamId, out var checkChain))
+        {
+            checkChain = new EventAssertionsChain();
+            AssertEventAssertionsChains.Add(eventStreamId, checkChain);
+        }
+
+        return checkChain;
+    }
+
+    private Test ThenException<TExpectedException>(bool anyDerived, string expectedMessage, MessageExceptionAssertionType matchingType)
+        where TExpectedException : Exception
+    {
+        return ThenException(
+            new TypeExceptionAssertion(typeof(TExpectedException), anyDerived),
+            new MessageExceptionAssertion(expectedMessage, matchingType));
+    }
+
+    private Test ThenException<TExpectedException>(bool anyDerived)
+        where TExpectedException : Exception
+    {
+        return ThenException(new TypeExceptionAssertion(typeof(TExpectedException), anyDerived));
     }
 }

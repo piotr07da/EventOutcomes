@@ -16,21 +16,23 @@ public sealed class Tester
         _adapter = adapter ?? throw new ArgumentNullException(nameof(adapter));
     }
 
-    public static async Task TestAsync(Guid eventStreamId, Func<Test, Test> testSetup, IAdapter adapter) => await TestAsync(eventStreamId.ToString(), testSetup, adapter);
+    public static async Task TestAsync(Guid eventStreamId, Func<TestForSingleStream, TestForSingleStream> testSetup, IAdapter adapter) => await TestAsync(eventStreamId.ToString(), testSetup, adapter);
 
-    public static async Task TestAsync(string eventStreamId, Func<Test, Test> testSetup, IAdapter adapter)
+    public static async Task TestAsync(string eventStreamId, Func<TestForSingleStream, TestForSingleStream> testSetup, IAdapter adapter)
     {
         var test = testSetup(Test.For(eventStreamId));
-        var tester = new Tester(test, adapter);
-        await tester.InternalTestAsync();
+        await TestAsync(test.Test, adapter);
+    }
+
+    public static async Task TestAsync(TestForSingleStream test, IAdapter adapter)
+    {
+        await TestAsync(test.Test, adapter);
     }
 
     public static async Task TestAsync(Func<Test, Test> testSetup, IAdapter adapter)
     {
         var test = testSetup(Test.ForMany());
-        var tester = new Tester(test, adapter);
-
-        await tester.InternalTestAsync();
+        await TestAsync(test, adapter);
     }
 
     public static async Task TestAsync(Test test, IAdapter adapter)
