@@ -1,4 +1,6 @@
-﻿using Xunit;
+﻿// ReSharper disable InconsistentNaming
+
+using Xunit;
 
 namespace EventOutcomes.Tests;
 

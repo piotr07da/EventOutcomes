@@ -1,12 +1,20 @@
 ﻿using System.ComponentModel;
+using System.Runtime.CompilerServices;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace EventOutcomes;
 
 public sealed class Test
 {
+    private readonly string? _eventStreamId;
+
     private Test()
     {
+    }
+
+    private Test(string eventStreamId)
+    {
+        _eventStreamId = eventStreamId;
     }
 
     internal IList<Action<IServiceProvider>> ArrangeActions { get; } = new List<Action<IServiceProvider>>();
@@ -15,6 +23,10 @@ public sealed class Test
     internal IDictionary<string, EventAssertionsChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventAssertionsChain>();
     internal IList<Func<IServiceProvider, Task<AssertActionResult>>> AssertActions { get; } = new List<Func<IServiceProvider, Task<AssertActionResult>>>();
     internal IList<IExceptionAssertion> AssertExceptionAssertions { get; } = new List<IExceptionAssertion>();
+
+    public static Test ForMany() => new();
+
+    public static Test For(EventStreamId eventStreamId) => new(eventStreamId);
 
     public Test Given<TService, TFakeService>(Action<TFakeService> arrangeAction)
         where TService : notnull
@@ -50,6 +62,10 @@ public sealed class Test
         return this;
     }
 
+    public Test Given(IEnumerable<object> initializationEvents) => Given(initializationEvents.ToArray());
+
+    public Test Given(params object[] initializationEvents) => Given(EventStreamId(), initializationEvents);
+
     public Test Given(EventStreamId eventStreamId, IEnumerable<object> initializationEvents) => Given(eventStreamId, initializationEvents.ToArray());
 
     public Test Given(EventStreamId eventStreamId, params object[] initializationEvents)
@@ -75,6 +91,9 @@ public sealed class Test
     }
 
     [EditorBrowsable(EditorBrowsableState.Never)]
+    public Test AllowExtra() => AllowExtra(EventStreamId());
+
+    [EditorBrowsable(EditorBrowsableState.Never)]
     public Test AllowExtra(EventStreamId eventStreamId)
     {
         // The idea is to allow for extra events in ThenInOrder and ThenInAnyOrder. For example, after enabling AllowExtra the following chain of events A, X, B, Y, C, Z matches following assertion ThenInOrder(A, B, C).
@@ -82,15 +101,27 @@ public sealed class Test
         throw new NotImplementedException();
     }
 
+    public Test ThenAny() => ThenAny(EventStreamId());
+
     public Test ThenAny(EventStreamId eventStreamId) => ThenNegativeEventAssertion(eventStreamId, Array.Empty<Func<object, bool>>());
+
+    public Test ThenNot(params Func<object, bool>[] excludedEventQualifiers) => ThenNot(EventStreamId(), excludedEventQualifiers);
 
     public Test ThenNot(EventStreamId eventStreamId, params Func<object, bool>[] excludedEventQualifiers) => ThenNegativeEventAssertion(eventStreamId, excludedEventQualifiers);
 
+    public Test Then(object expectedEvent) => Then(EventStreamId(), expectedEvent);
+
     public Test Then(EventStreamId eventStreamId, object expectedEvent) => ThenInOrder(eventStreamId, expectedEvent);
+
+    public Test ThenInOrder(params object[] expectedEvents) => ThenInOrder(EventStreamId(), expectedEvents);
 
     public Test ThenInOrder(EventStreamId eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InOrder);
 
+    public Test ThenInAnyOrder(params object[] expectedEvents) => ThenInAnyOrder(EventStreamId(), expectedEvents);
+
     public Test ThenInAnyOrder(EventStreamId eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InAnyOrder);
+
+    public Test ThenNone() => ThenNone(EventStreamId());
 
     public Test ThenNone(EventStreamId eventStreamId)
     {
@@ -214,12 +245,6 @@ public sealed class Test
         return this;
     }
 
-    public static Test ForMany() => new();
-
-    public static TestForSingleStream For(Guid eventStreamId) => For(eventStreamId.ToString());
-
-    public static TestForSingleStream For(string eventStreamId) => new(new Test(), eventStreamId);
-
     private Test ThenNegativeEventAssertion(string eventStreamId, Func<object, bool>[] excludedEventQualifiers)
     {
         var checkChain = GetEventAssertionChain(eventStreamId);
@@ -262,4 +287,6 @@ public sealed class Test
     {
         return ThenException(new TypeExceptionAssertion(typeof(TExpectedException), anyDerived));
     }
+
+    private string EventStreamId([CallerMemberName] string callerMemberName = "") => _eventStreamId ?? throw new Exception($"If Test class was created using Test.ForMany() then you have to pass eventStreamId argument to the {callerMemberName}(...) method. Alternatively you can create the Test class specifying event stream id using Test.For(eventStreamId).");
 }
