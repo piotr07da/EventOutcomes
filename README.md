@@ -8,6 +8,9 @@ It is based on the idea presented by Greg Young:
 
 EventOutcomes is MIT licensed.
 
+## Status
+[![build-n-publish](https://github.com/piotr07da/EventOutcomes/actions/workflows/build-n-publish.yml/badge.svg)](https://github.com/piotr07da/EventOutcomes/actions/workflows/build-n-publish.yml)
+
 ## Features
 
 - GIVEN events, WHEN command, THEN events
