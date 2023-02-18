@@ -72,7 +72,7 @@ RESULT FOR STREAM: {_streamId}
 Expected not to find any event matching 2 specified rules.
 
 Unexpected published event found at [0].
-Published events are:", assertException.Message);
+Published events:", assertException.Message);
     }
 
     [Fact]
@@ -98,13 +98,13 @@ Published events are:", assertException.Message);
 RESULT FOR STREAM: {_streamId}
 
 Expected following events in specified order:
-[EventOutcomes.Tests.FirstSampleEvent]
+0. [EventOutcomes.Tests.FirstSampleEvent]
 {{""V"":88}}
-[EventOutcomes.Tests.SecondSampleEvent]
+1. [EventOutcomes.Tests.SecondSampleEvent]
 {{""V"":""xxXX""}}
 
-Unexpected published events found in range [0..3].
-Published events are:", assertException.Message);
+Expected series of events not found.
+Published events:", assertException.Message);
     }
 
     [Fact]
@@ -131,13 +131,13 @@ Published events are:", assertException.Message);
 RESULT FOR STREAM: {_streamId}
 
 Expected following events in specified order:
-[EventOutcomes.Tests.FirstSampleEvent]
+0. [EventOutcomes.Tests.FirstSampleEvent]
 {{""V"":88}}
-[EventOutcomes.Tests.SecondSampleEvent]
+1. [EventOutcomes.Tests.SecondSampleEvent]
 {{""V"":""xxXX""}}
 
-Unexpected published events found in range [0..1].
-Published events are:", assertException.Message);
+Unexpected published event found at [1].
+Published events:", assertException.Message);
     }
 
     [Fact]
@@ -166,6 +166,6 @@ RESULT FOR STREAM: {_streamId}
 Expected not to find any event matching 2 specified rules.
 
 Unexpected published event found at [3].
-Published events are:", assertException.Message);
+Published events:", assertException.Message);
     }
 }

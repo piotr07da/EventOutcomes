@@ -52,7 +52,7 @@ RESULT FOR STREAM: {_streamId}
 Expected not to find any event matching 2 specified rules.
 
 Unexpected published event found at [1].
-Published events are:
+Published events:
 0. [EventOutcomes.Tests.FirstSampleEvent]
 {{""V"":8}}
 1. [EventOutcomes.Tests.SecondSampleEvent]

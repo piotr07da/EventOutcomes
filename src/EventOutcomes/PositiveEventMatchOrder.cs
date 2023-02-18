@@ -1,6 +1,6 @@
 ﻿namespace EventOutcomes
 {
-    public enum PositiveEventAssertionOrder
+    public enum PositiveEventMatchOrder
     {
         InOrder,
         InAnyOrder,

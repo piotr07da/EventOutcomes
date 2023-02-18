@@ -9,7 +9,7 @@ public class api_tests_for_single_and_multi_stream_mismatch
     [Fact]
     public void given_test_for_multi_stream_when_using_Given_without_eventStreamId_then_exception()
     {
-        var exception = Assert.Throws<Exception>(() =>
+        var exception = Assert.Throws<EventOutcomesException>(() =>
         {
             Test.ForMany().Given(new FirstSampleEvent(0));
         });

@@ -20,7 +20,7 @@ public sealed class Test
     internal IList<Action<IServiceProvider>> ArrangeActions { get; } = new List<Action<IServiceProvider>>();
     internal IDictionary<string, IEnumerable<object>> ArrangeEvents { get; } = new Dictionary<string, IEnumerable<object>>();
     internal IList<object> ActCommands { get; } = new List<object>();
-    internal IDictionary<string, EventAssertionsChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventAssertionsChain>();
+    internal IDictionary<string, EventMatchCheckersChain> AssertEventAssertionsChains { get; } = new Dictionary<string, EventMatchCheckersChain>();
     internal IList<Func<IServiceProvider, Task<AssertActionResult>>> AssertActions { get; } = new List<Func<IServiceProvider, Task<AssertActionResult>>>();
     internal IList<IExceptionAssertion> AssertExceptionAssertions { get; } = new List<IExceptionAssertion>();
 
@@ -41,7 +41,7 @@ public sealed class Test
             }
             else
             {
-                throw new Exception($"Component of type {service.GetType().Name} (instead of {typeof(TFakeService).Name}) has been resolved for service of type {typeof(TService).Name}.");
+                throw new EventOutcomesException($"Component of type {service.GetType().Name} (instead of {typeof(TFakeService).Name}) has been resolved for service of type {typeof(TService).Name}.");
             }
         });
     }
@@ -103,11 +103,11 @@ public sealed class Test
 
     public Test ThenAny() => ThenAny(EventStreamId());
 
-    public Test ThenAny(EventStreamId eventStreamId) => ThenNegativeEventAssertion(eventStreamId, Array.Empty<Func<object, bool>>());
+    public Test ThenAny(EventStreamId eventStreamId) => ThenNegativeEventMatchChecker(eventStreamId, Array.Empty<Func<object, bool>>());
 
     public Test ThenNot(params Func<object, bool>[] excludedEventQualifiers) => ThenNot(EventStreamId(), excludedEventQualifiers);
 
-    public Test ThenNot(EventStreamId eventStreamId, params Func<object, bool>[] excludedEventQualifiers) => ThenNegativeEventAssertion(eventStreamId, excludedEventQualifiers);
+    public Test ThenNot(EventStreamId eventStreamId, params Func<object, bool>[] excludedEventQualifiers) => ThenNegativeEventMatchChecker(eventStreamId, excludedEventQualifiers);
 
     public Test Then(object expectedEvent) => Then(EventStreamId(), expectedEvent);
 
@@ -115,11 +115,11 @@ public sealed class Test
 
     public Test ThenInOrder(params object[] expectedEvents) => ThenInOrder(EventStreamId(), expectedEvents);
 
-    public Test ThenInOrder(EventStreamId eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InOrder);
+    public Test ThenInOrder(EventStreamId eventStreamId, params object[] expectedEvents) => ThenPositiveEventMatchChecker(eventStreamId, expectedEvents, PositiveEventMatchOrder.InOrder);
 
     public Test ThenInAnyOrder(params object[] expectedEvents) => ThenInAnyOrder(EventStreamId(), expectedEvents);
 
-    public Test ThenInAnyOrder(EventStreamId eventStreamId, params object[] expectedEvents) => ThenPositiveEventAssertion(eventStreamId, expectedEvents, PositiveEventAssertionOrder.InAnyOrder);
+    public Test ThenInAnyOrder(EventStreamId eventStreamId, params object[] expectedEvents) => ThenPositiveEventMatchChecker(eventStreamId, expectedEvents, PositiveEventMatchOrder.InAnyOrder);
 
     public Test ThenNone() => ThenNone(EventStreamId());
 
@@ -127,7 +127,7 @@ public sealed class Test
     {
         var checkChain = GetEventAssertionChain(eventStreamId);
 
-        checkChain.AddNoneAssertion();
+        checkChain.AddNoneChecker();
 
         return this;
     }
@@ -151,7 +151,7 @@ public sealed class Test
                 return assertAction(fakeService);
             }
 
-            throw new Exception($"Component of type {service.GetType().Name} (instead of {typeof(TFakeService).Name}) has been resolved for service of type {typeof(TService).Name}.");
+            throw new EventOutcomesException($"Component of type {service.GetType().Name} (instead of {typeof(TFakeService).Name}) has been resolved for service of type {typeof(TService).Name}.");
         });
     }
 
@@ -245,29 +245,29 @@ public sealed class Test
         return this;
     }
 
-    private Test ThenNegativeEventAssertion(string eventStreamId, Func<object, bool>[] excludedEventQualifiers)
+    private Test ThenNegativeEventMatchChecker(string eventStreamId, Func<object, bool>[] excludedEventQualifiers)
     {
         var checkChain = GetEventAssertionChain(eventStreamId);
 
-        checkChain.AddNegativeAssertion(new NegativeEventAssertion(excludedEventQualifiers));
+        checkChain.AddNegativeMatcherChecker(new NegativeEventMatchChecker(excludedEventQualifiers));
 
         return this;
     }
 
-    private Test ThenPositiveEventAssertion(string eventStreamId, object[] expectedEvents, PositiveEventAssertionOrder order)
+    private Test ThenPositiveEventMatchChecker(string eventStreamId, object[] expectedEvents, PositiveEventMatchOrder order)
     {
         var checkChain = GetEventAssertionChain(eventStreamId);
 
-        checkChain.AddPositiveAssertion(new PositiveEventAssertion(expectedEvents, order));
+        checkChain.AddPositiveMatchChecker(new PositiveEventMatchChecker(expectedEvents, order));
 
         return this;
     }
 
-    private EventAssertionsChain GetEventAssertionChain(string eventStreamId)
+    private EventMatchCheckersChain GetEventAssertionChain(string eventStreamId)
     {
         if (!AssertEventAssertionsChains.TryGetValue(eventStreamId, out var checkChain))
         {
-            checkChain = new EventAssertionsChain();
+            checkChain = new EventMatchCheckersChain();
             AssertEventAssertionsChains.Add(eventStreamId, checkChain);
         }
 
@@ -288,5 +288,5 @@ public sealed class Test
         return ThenException(new TypeExceptionAssertion(typeof(TExpectedException), anyDerived));
     }
 
-    private string EventStreamId([CallerMemberName] string callerMemberName = "") => _eventStreamId ?? throw new Exception($"If Test class was created using Test.ForMany() then you have to pass eventStreamId argument to the {callerMemberName}(...) method. Alternatively you can create the Test class specifying event stream id using Test.For(eventStreamId).");
+    private string EventStreamId([CallerMemberName] string callerMemberName = "") => _eventStreamId ?? throw new EventOutcomesException($"If Test class was created using Test.ForMany() then you have to pass eventStreamId argument to the {callerMemberName}(...) method. Alternatively you can create the Test class specifying event stream id using Test.For(eventStreamId).");
 }

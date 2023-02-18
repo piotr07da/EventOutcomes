@@ -1,12 +1,9 @@
-﻿using System;
+﻿namespace EventOutcomes;
 
-namespace EventOutcomes
+public sealed class AssertException : Exception
 {
-    public sealed class AssertException : Exception
+    public AssertException(string message)
+        : base($"{Environment.NewLine}{message}")
     {
-        public AssertException(string message)
-            : base($"{Environment.NewLine}{message}")
-        {
-        }
     }
 }

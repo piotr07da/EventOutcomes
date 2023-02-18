@@ -45,10 +45,8 @@ public class api_tests_for_None
 --------------------------------------------------------
 RESULT FOR STREAM: {_streamId}
 
-Expected no events.
-
-Unexpected published event found at [0].
-Published events are:
+No events expected.
+Published events:
 0. [EventOutcomes.Tests.FirstSampleEvent]
 {{""V"":1}}
 

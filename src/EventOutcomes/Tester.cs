@@ -118,12 +118,12 @@ public sealed class Tester
         }
     }
 
-    private static void AssertEventStreamsAssertions(IDictionary<string, EventAssertionsChain> assertionsChainsForStreams, IDictionary<string, IEnumerable<object>> streamsWithPublishedEvents)
+    private static void AssertEventStreamsAssertions(IDictionary<string, EventMatchCheckersChain> assertionsChainsForStreams, IDictionary<string, IEnumerable<object>> streamsWithPublishedEvents)
     {
         if (assertionsChainsForStreams is null) throw new ArgumentNullException(nameof(assertionsChainsForStreams));
         if (streamsWithPublishedEvents is null) throw new ArgumentNullException(nameof(streamsWithPublishedEvents));
 
-        var executionResults = new List<EventAssertionsChainExecutionResult>();
+        var executionResults = new List<EventMatchCheckersChainExecutionResult>();
 
         foreach (var ac in assertionsChainsForStreams)
         {
@@ -134,7 +134,7 @@ public sealed class Tester
                 publishedEvents = Array.Empty<object>();
             }
 
-            var executionResult = EventAssertionsChainExecutor.Execute(streamId, assertionChain, publishedEvents);
+            var executionResult = EventMatchCheckersChainExecutor.Execute(streamId, assertionChain, publishedEvents);
             executionResults.Add(executionResult);
         }
 
