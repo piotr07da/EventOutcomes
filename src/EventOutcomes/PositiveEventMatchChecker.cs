@@ -36,7 +36,7 @@ internal sealed class PositiveEventMatchChecker
 
         if (Order == PositiveEventMatchOrder.InAnyOrder)
         {
-            return CheckOutOfOrder(publishedEvents, checkFrom);
+            return CheckInAnyOrder(publishedEvents, checkFrom);
         }
 
         throw new EventOutcomesException($"Unknown {nameof(PositiveEventMatchOrder)} specified: {Order}.");
@@ -66,7 +66,7 @@ internal sealed class PositiveEventMatchChecker
         return NotMatchingResult(expectedEventIndex, -1);
     }
 
-    private PositiveEventMatchResult CheckOutOfOrder(object[] publishedEvents, int checkFrom)
+    private PositiveEventMatchResult CheckInAnyOrder(object[] publishedEvents, int checkFrom)
     {
         var comparableExpectedEvents = ExpectedEvents.Select(ComparableEventDocument.From).ToArray();
         var comparablePublishedEvents = publishedEvents.Select(ComparableEventDocument.From).ToArray();
