@@ -104,7 +104,7 @@ Unexpected published event found at [1].
     }
 
     [Fact]
-    public async Task having_only_first_event_published_but_having_more_events_expected_when_Test_for_InOrder_assertion_then_exception_thrown()
+    public async Task having_only_first_expected_event_published_when_Test_for_InOrder_assertion_then_exception_thrown()
     {
         var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(111));
 
