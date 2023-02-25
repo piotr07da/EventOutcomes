@@ -29,6 +29,6 @@ jobs:
       - name: Package EventOutcomes
         run: dotnet pack EventOutcomes.csproj /p:Version=${EVENT_OUTCOMES_VERSION} --output ${GITHUB_WORKSPACE}/pkg
         working-directory: src/EventOutcomes
-      - name: Publish EventOutcomes package
+      - name: Publish EventOutcomes
         run: dotnet nuget push EventOutcomes.${EVENT_OUTCOMES_VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
         working-directory: pkg

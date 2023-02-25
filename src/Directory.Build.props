@@ -1,22 +1,22 @@
 <Project>
 
-  <PropertyGroup>
-	<Product>EventOutcomes</Product>
-    <Copyright>Piotr Bejger</Copyright>
-    <Authors>Piotr Bejger</Authors>
-    <Company>Piotr Bejger</Company>
-	<Description>EventOutcomes is a free, open-source .NET library created to make writing unit tests for event sourced applications easier.</Description>
-    <RepositoryUrl>https://github.com/piotr07da/EventOutcomes</RepositoryUrl>
-    <PackageTags>EventOutcomes; event; events; eventsourcing; eventdriven; unittesting; unittests; testing; tests; unit;</PackageTags>
-    <PackageLicenseExpression>MIT</PackageLicenseExpression>
-	<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
-  </PropertyGroup>
+	<PropertyGroup>
+		<Product>EventOutcomes</Product>
+		<Copyright>Piotr Bejger</Copyright>
+		<Authors>Piotr Bejger</Authors>
+		<Company>Piotr Bejger</Company>
+		<Description>EventOutcomes is a free, open-source .NET library created to make writing unit tests for event sourced applications easier.</Description>
+		<RepositoryUrl>https://github.com/piotr07da/EventOutcomes</RepositoryUrl>
+		<PackageTags>EventOutcomes; event; events; eventsourcing; eventdriven; unittesting; unittests; testing; tests; unit;</PackageTags>
+		<PackageLicenseExpression>MIT</PackageLicenseExpression>
+		<PackageRequireLicenseAcceptance>True</PackageRequireLicenseAcceptance>
+	</PropertyGroup>
 
-  <PropertyGroup>
-    <LangVersion>latest</LangVersion>
-	<Nullable>enable</Nullable>
-	<ImplicitUsings>enable</ImplicitUsings>
-	<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
-  </PropertyGroup>
+	<PropertyGroup>
+		<LangVersion>latest</LangVersion>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+	</PropertyGroup>
 
 </Project>
