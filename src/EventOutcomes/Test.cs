@@ -288,5 +288,5 @@ public sealed class Test
         return ThenException(new TypeExceptionAssertion(typeof(TExpectedException), anyDerived));
     }
 
-    private string EventStreamId([CallerMemberName] string callerMemberName = "") => _eventStreamId ?? throw new EventOutcomesException($"If Test class was created using Test.ForMany() then you have to pass eventStreamId argument to the {callerMemberName}(...) method. Alternatively you can create the Test class specifying event stream id using Test.For(eventStreamId).");
+    public string EventStreamId([CallerMemberName] string callerMemberName = "") => _eventStreamId ?? throw new EventOutcomesException($"If Test class was created using Test.ForMany() then you have to pass eventStreamId argument to the {callerMemberName}(...) method. Alternatively you can create the Test class specifying event stream id using Test.For(eventStreamId).");
 }
