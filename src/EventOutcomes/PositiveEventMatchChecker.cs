@@ -69,7 +69,7 @@ internal sealed class PositiveEventMatchChecker
     private PositiveEventMatchResult CheckInAnyOrder(object[] publishedEvents, int checkFrom)
     {
         var comparableExpectedEvents = ExpectedEvents.Select(ComparableEventDocument.From).ToArray();
-        var comparablePublishedEvents = publishedEvents.Select(ComparableEventDocument.From).ToArray();
+        var comparablePublishedEvents = publishedEvents.Skip(checkFrom).Select(ComparableEventDocument.From).ToArray();
 
         var comparableExpectedEventsLeft = comparableExpectedEvents.ToHashSet();
         for (var publishedEventIndex = 0; publishedEventIndex < publishedEvents.Length; ++publishedEventIndex)

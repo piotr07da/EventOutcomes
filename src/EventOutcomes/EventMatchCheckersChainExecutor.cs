@@ -21,7 +21,7 @@ internal sealed class EventMatchCheckersChainExecutor
 
         var checkers = checkersChain.Checkers;
 
-        var consecutiveNegativeAssertionCounter = 0;
+        var consecutiveNegativeCheckerCounter = 0;
 
         if (checkers.Count == 0)
         {
@@ -32,14 +32,14 @@ internal sealed class EventMatchCheckersChainExecutor
 
         for (var cIx = 0; cIx < checkers.Count; cIx++)
         {
-            var check = checkers[cIx];
-            if (check is PositiveEventMatchChecker positiveAssertion)
+            var checker = checkers[cIx];
+            if (checker is PositiveEventMatchChecker positiveChecker)
             {
-                consecutiveNegativeAssertionCounter = 0;
+                consecutiveNegativeCheckerCounter = 0;
 
                 if (cIx > 0 && checkers[cIx - 1] is NegativeEventMatchChecker negativeCheck)
                 {
-                    var pr = positiveAssertion.CheckMatchUntilFoundOrEnd(publishedEvents, eventPointerIndex);
+                    var pr = positiveChecker.CheckMatchUntilFoundOrEnd(publishedEvents, eventPointerIndex);
                     if (!pr.IsMatching)
                     {
                         return EventMatchCheckersChainExecutionResult.CreateFailed(streamId, EventMatchErrorMessageFormatter.FormatPositiveEventMatchFail(streamId, publishedEvents, pr));
@@ -51,17 +51,17 @@ internal sealed class EventMatchCheckersChainExecutor
                         return EventMatchCheckersChainExecutionResult.CreateFailed(streamId, EventMatchErrorMessageFormatter.FormatNegativeEventMatchFail(streamId, publishedEvents, nr));
                     }
 
-                    eventPointerIndex = pr.MatchFrom + positiveAssertion.ExpectedEvents.Length;
+                    eventPointerIndex = pr.MatchFrom + positiveChecker.ExpectedEvents.Length;
                 }
                 else
                 {
-                    var pr = positiveAssertion.CheckMatch(publishedEvents, eventPointerIndex);
+                    var pr = positiveChecker.CheckMatch(publishedEvents, eventPointerIndex);
                     if (!pr.IsMatching)
                     {
                         return EventMatchCheckersChainExecutionResult.CreateFailed(streamId, EventMatchErrorMessageFormatter.FormatPositiveEventMatchFail(streamId, publishedEvents, pr));
                     }
 
-                    eventPointerIndex += positiveAssertion.ExpectedEvents.Length;
+                    eventPointerIndex += positiveChecker.ExpectedEvents.Length;
                 }
 
                 if (cIx == checkers.Count - 1)
@@ -72,17 +72,17 @@ internal sealed class EventMatchCheckersChainExecutor
                     }
                 }
             }
-            else if (check is NegativeEventMatchChecker negativeAssertion)
+            else if (checker is NegativeEventMatchChecker negativeChecker)
             {
-                ++consecutiveNegativeAssertionCounter;
-                if (consecutiveNegativeAssertionCounter > 1)
+                ++consecutiveNegativeCheckerCounter;
+                if (consecutiveNegativeCheckerCounter > 1)
                 {
-                    throw new EventOutcomesException("Consecutive negative assertions detected.");
+                    throw new EventOutcomesException("Consecutive negative checkers detected.");
                 }
 
                 if (cIx == checkers.Count - 1)
                 {
-                    var nr = negativeAssertion.CheckMatch(publishedEvents, eventPointerIndex, publishedEvents.Length);
+                    var nr = negativeChecker.CheckMatch(publishedEvents, eventPointerIndex, publishedEvents.Length);
                     if (!nr.IsMatching)
                     {
                         return EventMatchCheckersChainExecutionResult.CreateFailed(streamId, EventMatchErrorMessageFormatter.FormatNegativeEventMatchFail(streamId, publishedEvents, nr));
@@ -91,7 +91,7 @@ internal sealed class EventMatchCheckersChainExecutor
             }
             else
             {
-                throw new EventOutcomesException($"{check.GetType().FullName} is not correct type of event assertion.");
+                throw new EventOutcomesException($"{checker.GetType().FullName} is not correct type of event checker.");
             }
         }
 

@@ -48,6 +48,20 @@ public class api_tests_for_combined_events_assertions
     }
 
     [Fact]
+    public async Task having_events_published_when_Test_for_InOrder_and_InAnyOrder_assertions_then_no_exception_thrown()
+    {
+        var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(88), new SecondSampleEvent("xx"), new FirstSampleEvent(8), new SecondSampleEvent("x"));
+
+        var t = Test.For(_streamId)
+            .Given()
+            .When(new FirstCommand())
+            .ThenInOrder(new FirstSampleEvent(88), new SecondSampleEvent("xx"))
+            .ThenInAnyOrder(new FirstSampleEvent(8), new SecondSampleEvent("x"));
+
+        await Tester.TestAsync(t, having);
+    }
+
+    [Fact]
     public async Task having_events_published_but_first_assertion_fails_when_Test_for_Not_and_InOrder_assertions_then_exception_thrown()
     {
         var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(8), new SecondSampleEvent("x"), new FirstSampleEvent(88), new SecondSampleEvent("xx"));
