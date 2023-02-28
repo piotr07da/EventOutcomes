@@ -40,9 +40,20 @@ public sealed class Tester
 
         try
         {
-            await ArrangeAsync();
-            await ActAsync();
-            await AssertAsync();
+            // The following two methods are not called after ArrangeAsync because when one async method is called after another, they do not belong to the same asynchronous flow.
+            // Therefore if someone uses AsyncLocal in the fake or real implementations of their services, the values initialized in Given<IService, FakeService>() will be lost.
+            // For that reason ActAsync() asn AssertAsync() methods are called internally inside the ArrangeAsync() method to maintain the same asynchronous flow.
+            // This ensures that when ArrangeAsync() is called, ActAsync() and AssertAsync() are also called in the same asynchronous flow,
+            // preventing the loss of values set in Given<IService, FakeService>().
+            // The other solution for that would be to extract the code from all three methods and place that code here directly one after another.
+
+            await ArrangeAsync(async () =>
+            {
+                await ActAsync(async () =>
+                {
+                    await AssertAsync();
+                });
+            });
         }
         finally
         {
@@ -50,7 +61,7 @@ public sealed class Tester
         }
     }
 
-    private async Task ArrangeAsync()
+    private async Task ArrangeAsync(Func<Task> internalContinuation)
     {
         foreach (var arrangeAction in _test.ArrangeActions)
         {
@@ -58,10 +69,11 @@ public sealed class Tester
         }
 
         await _adapter.SetGivenEventsAsync(_test.ArrangeEvents);
-        await Task.CompletedTask;
+
+        await internalContinuation();
     }
 
-    private async Task ActAsync()
+    private async Task ActAsync(Func<Task> internalContinuation)
     {
         try
         {
@@ -78,6 +90,8 @@ public sealed class Tester
         {
             _thrownException = ex;
         }
+
+        await internalContinuation();
     }
 
     private async Task AssertAsync()

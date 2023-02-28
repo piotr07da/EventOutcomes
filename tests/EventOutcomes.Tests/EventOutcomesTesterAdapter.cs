@@ -22,7 +22,8 @@ public class EventOutcomesTesterAdapter : IAdapter
         _stubAction = stubAction;
 
         var services = new ServiceCollection();
-        services.AddScoped<ICleverService, FakeCleverService>();
+        services.AddScoped<IFirstSampleService, FakeTransientFirstSampleService>();
+        services.AddSingleton<ISecondSampleService, FakeAsyncLocalSecondSampleService>();
 
         _serviceProvider = services.BuildServiceProvider();
     }
