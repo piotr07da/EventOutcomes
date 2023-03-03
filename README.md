@@ -201,3 +201,6 @@ var test = Test.For(eventStreamId)
     .When(new DoSomethingCommand())
     .Given(new SomeOtherEvent(eventStreamId, "some other event data"))
 ```
+
+## Examples
+An example application can be found [here](https://github.com/piotr07da/EventForgingOutcomes-Sample).
