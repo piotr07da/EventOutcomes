@@ -1,10 +1,10 @@
 # EventOutcomes
 
-EventOutcomes is a free, open-source .NET library created to make it easier to write unit tests for event sourcing based applications.
+EventOutcomes is a free, open-source .NET library created to make it easier to write unit tests for event sourced applications.
 It is based on the idea presented by Greg Young:
-> GIVEN events
-> WHEN command
-> THEN events
+> GIVEN events  
+> WHEN command  
+> THEN events  
 
 EventOutcomes is MIT licensed.
 
@@ -125,19 +125,19 @@ test.Given(new EventA(), new EventB());
 ```
 There are a few other options to arranging our tests and declaring what has already happend.
 
-#### Given events
-To declare what events have occured, use:
+### Given events
+To declare what events have occurred, use:
 ```csharp
 .Given(new FirstEvent(), new SecondEvent(), new ThirdEvent() /*, ...*/)
 ```
 
-#### Given an action on a service
+### Given an action on a service
 To call any action on any service, use:
 ```csharp
 .Given<IWeatherService>(s => s.ConfigurePressureUnit(PressureUnit.Hectopascal))
 ```
 
-#### Given an action on a fake service
+### Given an action on a fake service
 To call any action on any fake service, use:
 ```csharp
 .Given<IGeoLocationService, FakeGeoLocationService>(s => s.StubLocation(53, Latitude.North, 18, Longitude.East))
@@ -149,21 +149,21 @@ To specify a command that will be dispatched to your application code, use the `
 ## Then
 To assert, use the ``Then`` method, which has many variations. All of them are described below:
 - ``ThenNone()`` &ndash; the test passes if no event was published and no exception was thrown.
-- ``ThenAny()`` &ndash; test passes if any events occured or if no events occured. This method only makes sense when it is combined with other ``Then`` methods. For example, if we want to check if ``FirstEventOccured`` and ``LastEventOccured`` occured, but we don't care about any events that may have occured in between, then we can write:
+- ``ThenAny()`` &ndash; test passes if any events occurred or if no events occurred. This method only makes sense when it is combined with other ``Then`` methods. For example, if we want to check if ``FirstEventoccurred`` and ``LastEventoccurred`` occurred, but we don't care about any events that may have occurred in between, then we can write:
   ```csharp
-  .Then(new FirstEventOccured())
+  .Then(new FirstEventOccurred())
   .ThenAny()
-  .Then(new LastEventOccured())
+  .Then(new LastEventOccurred())
   ```
-- ``ThenNot(params Func<object, bool>[] excludedEventQualifiers)`` &ndash; the test passes if none of the events that occured match any of the ``excludedEventQualifiers``. For example:
+- ``ThenNot(params Func<object, bool>[] excludedEventQualifiers)`` &ndash; the test passes if none of the events that occurred matches any of the ``excludedEventQualifiers``. For example:
   ```csharp
   .ThenNot(
-      e => e is FirstEventOccured { V: 999, },
-      e => e is SecondEventOccured { V: "x", })
+      e => e is FirstEventOccurred { V: 999, },
+      e => e is SecondEventOccurred { V: "x", })
   ```
-- ``Then(object expectedEvent)`` &ndash; the test passes if exactly one event occured and that event is the same as the event specified in the ``Then`` method.
-- ``ThenInOrder(params object[] expectedEvents)`` &ndash; the test passes if the same events occured in the specified order.
-- ``ThenInAnyOrder(params object[] expectedEvents)`` &ndash; the test passes if the same events occured in any order.
+- ``Then(object expectedEvent)`` &ndash; the test passes if exactly one event occurred and that event is the same as the event specified in the ``Then`` method.
+- ``ThenInOrder(params object[] expectedEvents)`` &ndash; the test passes if the same events occurred in the specified order.
+- ``ThenInAnyOrder(params object[] expectedEvents)`` &ndash; the test passes if the same events occurred in any order.
 - ``Then<TService>(Func<TService, AssertActionResult> assertAction)`` &ndash; the test passes if the assertion action returns ``true`` or ``AssertActionResult.Successful()``. There is also an async version of this method.
 - ``Then<TService, TFakeService>(Func<TFakeService, AssertActionResult> assertAction)`` &ndash; the test passes if the assertion action returns ``true`` or ``AssertActionResult.Successful()``. There is also an async version of this method.
 - ``Then(Func<IServiceProvider, AssertActionResult> assertAction)`` &ndash; the test passes if the assertion action returns ``true`` or ``AssertActionResult.Successful()``. There is also an async version of this method.

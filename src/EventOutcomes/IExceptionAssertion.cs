@@ -1,9 +1,6 @@
-﻿using System;
+﻿namespace EventOutcomes;
 
-namespace EventOutcomes
+public interface IExceptionAssertion
 {
-    public interface IExceptionAssertion
-    {
-        void Assert(Exception thrownException);
-    }
+    void Assert(Exception thrownException);
 }

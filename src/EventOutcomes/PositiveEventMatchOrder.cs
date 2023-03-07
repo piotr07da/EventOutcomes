@@ -1,8 +1,7 @@
-﻿namespace EventOutcomes
+﻿namespace EventOutcomes;
+
+public enum PositiveEventMatchOrder
 {
-    public enum PositiveEventMatchOrder
-    {
-        InOrder,
-        InAnyOrder,
-    }
+    InOrder,
+    InAnyOrder,
 }

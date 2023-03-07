@@ -1,26 +1,23 @@
-﻿using System;
+﻿namespace EventOutcomes;
 
-namespace EventOutcomes
+public sealed class TypeExceptionAssertion : IExceptionAssertion
 {
-    public sealed class TypeExceptionAssertion : IExceptionAssertion
+    private readonly Type _expectedExceptionType;
+    private readonly bool _anyDerived;
+
+    public TypeExceptionAssertion(Type expectedExceptionType, bool anyDerived)
     {
-        private readonly Type _expectedExceptionType;
-        private readonly bool _anyDerived;
+        _expectedExceptionType = expectedExceptionType ?? throw new ArgumentNullException(nameof(expectedExceptionType));
+        _anyDerived = anyDerived;
+    }
 
-        public TypeExceptionAssertion(Type expectedExceptionType, bool anyDerived)
+    public void Assert(Exception thrownException)
+    {
+        var thrownExceptionType = thrownException.GetType();
+
+        if ((!_anyDerived && thrownExceptionType != _expectedExceptionType) || (_anyDerived && !_expectedExceptionType.IsAssignableFrom(thrownExceptionType)))
         {
-            _expectedExceptionType = expectedExceptionType ?? throw new ArgumentNullException(nameof(expectedExceptionType));
-            _anyDerived = anyDerived;
-        }
-
-        public void Assert(Exception thrownException)
-        {
-            var thrownExceptionType = thrownException.GetType();
-
-            if ((!_anyDerived && thrownExceptionType != _expectedExceptionType) || (_anyDerived && !_expectedExceptionType.IsAssignableFrom(thrownExceptionType)))
-            {
-                throw new AssertException($"Exception of unexpected type was thrown.{Environment.NewLine}Expected: {_expectedExceptionType.Name}.{Environment.NewLine}Actual: {thrownExceptionType.Name}.");
-            }
+            throw new AssertException($"Exception of unexpected type was thrown.{Environment.NewLine}Expected: {_expectedExceptionType.Name}.{Environment.NewLine}Actual: {thrownExceptionType.Name}.{Environment.NewLine}{thrownException}");
         }
     }
 }

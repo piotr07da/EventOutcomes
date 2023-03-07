@@ -1,9 +1,8 @@
-﻿namespace EventOutcomes
+﻿namespace EventOutcomes;
+
+public enum MessageExceptionAssertionType
 {
-    public enum MessageExceptionAssertionType
-    {
-        Equals,
-        Contains,
-        MatchesRegex,
-    }
+    Equals,
+    Contains,
+    MatchesRegex,
 }
