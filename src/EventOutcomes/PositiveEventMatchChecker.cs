@@ -72,7 +72,7 @@ internal sealed class PositiveEventMatchChecker
         var comparablePublishedEvents = publishedEvents.Skip(checkFrom).Select(ComparableEventDocument.From).ToArray();
 
         var comparableExpectedEventsLeft = comparableExpectedEvents.ToHashSet();
-        for (var publishedEventIndex = 0; publishedEventIndex < publishedEvents.Length; ++publishedEventIndex)
+        for (var publishedEventIndex = 0; publishedEventIndex < comparablePublishedEvents.Length; ++publishedEventIndex)
         {
             var serializedPublishedEvent = comparablePublishedEvents[publishedEventIndex];
 

@@ -182,4 +182,74 @@ Expected not to find any event matching 2 specified rules.
 Unexpected published event found at [3].
 Published events:", assertException.Message);
     }
+
+    [Fact]
+    public async Task having_events_published_when_Test_for_Then_and_ThenInOrder_assertions_then_test_succeeded()
+    {
+        var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(88), new FirstSampleEvent(222), new FirstSampleEvent(333));
+
+        var t = Test.For(_streamId)
+            .Given()
+            .When(new FirstCommand())
+            .Then(new FirstSampleEvent(88))
+            .ThenInOrder(new FirstSampleEvent(222), new FirstSampleEvent(333));
+
+        await Tester.TestAsync(t, having);
+    }
+
+    [Fact]
+    public async Task having_events_published_but_last_expected_event_does_not_exist_when_Test_for_Then_and_ThenInOrder_assertions_then_exception_thrown()
+    {
+        var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(88), new FirstSampleEvent(222));
+
+        var t = Test.For(_streamId)
+            .Given()
+            .When(new FirstCommand())
+            .Then(new FirstSampleEvent(88))
+            .ThenInOrder(new FirstSampleEvent(222), new FirstSampleEvent(333));
+
+        var assertException = await Assert.ThrowsAsync<AssertException>(async () =>
+        {
+            await Tester.TestAsync(t, having);
+        });
+
+        Assert.Contains(@"
+Expected event [1] not found.
+", assertException.Message);
+    }
+
+    [Fact]
+    public async Task having_events_published_when_Test_for_Then_and_ThenInAnyOrder_assertions_then_test_succeeded()
+    {
+        var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(88), new FirstSampleEvent(222), new FirstSampleEvent(333));
+
+        var t = Test.For(_streamId)
+            .Given()
+            .When(new FirstCommand())
+            .Then(new FirstSampleEvent(88))
+            .ThenInAnyOrder(new FirstSampleEvent(333), new FirstSampleEvent(222));
+
+        await Tester.TestAsync(t, having);
+    }
+
+    [Fact]
+    public async Task having_events_published_but_last_expected_event_does_not_exist_when_Test_for_Then_and_ThenInAnyOrder_assertions_then_exception_thrown()
+    {
+        var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(88), new FirstSampleEvent(222));
+
+        var t = Test.For(_streamId)
+            .Given()
+            .When(new FirstCommand())
+            .Then(new FirstSampleEvent(88))
+            .ThenInAnyOrder(new FirstSampleEvent(222), new FirstSampleEvent(333));
+
+        var assertException = await Assert.ThrowsAsync<AssertException>(async () =>
+        {
+            await Tester.TestAsync(t, having);
+        });
+
+        Assert.Contains(@"
+Expected event [1] not found.
+", assertException.Message);
+    }
 }
