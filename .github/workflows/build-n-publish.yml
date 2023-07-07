@@ -1,6 +1,6 @@
 name: EventOutcomes
 env:
-  EVENT_OUTCOMES_VERSION: 1.0.14-alpha
+  EVENT_OUTCOMES_VERSION: 1.0.15
 on:
   push:
     branches:
