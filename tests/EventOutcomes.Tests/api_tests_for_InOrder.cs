@@ -122,4 +122,24 @@ Unexpected published event found at [1].
 Expected event [1] not found.
 ", assertException.Message);
     }
+    
+    [Fact]
+    public async Task having_events_of_the_same_type_with_the_same_order_but_also_with_one_extra_unexpected_event_when_Test_for_InOrder_assertion_then_exception_thrown()
+    {
+        var having = EventOutcomesTesterAdapter.Stub(_streamId, new FirstSampleEvent(1), new FirstSampleEvent(2), new SecondSampleEvent("3"), new FirstSampleEvent(-1000));
+
+        var t = Test.For(_streamId)
+            .Given()
+            .When(new FirstCommand())
+            .ThenInOrder(new FirstSampleEvent(1), new FirstSampleEvent(2), new SecondSampleEvent("3"));
+
+        var assertException = await Assert.ThrowsAsync<AssertException>(async () =>
+        {
+            await Tester.TestAsync(t, having);
+        });
+
+        Assert.Contains(@"
+Extra unexpected events found.
+", assertException.Message);
+    }
 }

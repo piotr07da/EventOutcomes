@@ -66,9 +66,9 @@ internal sealed class EventMatchCheckersChainExecutor
 
                 if (cIx == checkers.Count - 1)
                 {
-                    if (eventPointerIndex < publishedEvents.Length - 1)
+                    if (eventPointerIndex < publishedEvents.Length)
                     {
-                        return EventMatchCheckersChainExecutionResult.CreateFailed(streamId, "Unexpected events found.");
+                        return EventMatchCheckersChainExecutionResult.CreateFailed(streamId, "Extra unexpected events found.");
                     }
                 }
             }
