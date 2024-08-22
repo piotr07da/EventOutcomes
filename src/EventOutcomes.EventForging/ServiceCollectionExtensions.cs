@@ -5,7 +5,7 @@ namespace EventOutcomes.EventForging;
 
 public static class ServiceCollectionExtensions
 {
-    public static IServiceCollection AddEventOutcomesForEventForging(IServiceCollection services)
+    public static IServiceCollection AddEventOutcomesForEventForging(this IServiceCollection services)
     {
         services.AddSingleton<IEventDatabase, FakeEventDatabase>();
         FakeEventDatabase.Initialize();

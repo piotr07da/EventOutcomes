@@ -61,7 +61,7 @@ public class FakeEventDatabase : IEventDatabase
         if ((expectedVersion == ExpectedVersion.None && currentVersion != -1) || (expectedVersion.IsDefined && expectedVersion != currentVersion))
             throw new EventForgingUnexpectedVersionException(aggregateId, null, expectedVersion, retrievedVersion, currentVersion);
 
-        NewlySavedEvents[aggregateId] = events.ToArray(); // makes copy of events
+        NewlySavedEvents[aggregateId] = events.ToArray(); // makes a copy of events
         return Task.CompletedTask;
     }
 
