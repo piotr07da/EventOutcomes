@@ -1,6 +1,6 @@
 name: EventOutcomes
 env:
-  EVENT_OUTCOMES_VERSION: 1.0.16
+  EVENT_OUTCOMES_VERSION: 1.1.0
 on:
   push:
     branches:
@@ -15,7 +15,7 @@ jobs:
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v3
         with:
-          dotnet-version: '7.0.x'
+          dotnet-version: '8.0.x'
       - name: Restore packages
         run: dotnet restore
       - name: Build
@@ -31,4 +31,10 @@ jobs:
         working-directory: src/EventOutcomes
       - name: Publish EventOutcomes
         run: dotnet nuget push EventOutcomes.${EVENT_OUTCOMES_VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
+        working-directory: pkg
+      - name: Package EventOutcomes.EventForging
+        run: dotnet pack EventOutcomes.EventForging.csproj /p:Version=${EVENT_OUTCOMES_VERSION} --output ${GITHUB_WORKSPACE}/pkg
+        working-directory: src/EventOutcomes.EventForging
+      - name: Publish EventOutcomes.EventForging
+        run: dotnet nuget push EventOutcomes.EventForging.${EVENT_OUTCOMES_VERSION}.nupkg --source https://api.nuget.org/v3/index.json --api-key ${{ secrets.NUGET_API_KEY }} --skip-duplicate
         working-directory: pkg
