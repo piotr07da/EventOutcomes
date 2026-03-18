@@ -3,7 +3,7 @@ using EventForging;
 
 namespace EventOutcomes.EventForging;
 
-public class FakeEventDatabase : IEventDatabase
+public class FakeEventDatabase : IEventDatabase, IDestructiveEventDatabase
 {
     private static readonly AsyncLocal<Dictionary<string, IEnumerable<object>>> _alreadySavedEvents = new();
     private static readonly AsyncLocal<Dictionary<string, IEnumerable<object>>> _newlySavedEvents = new();
@@ -62,6 +62,16 @@ public class FakeEventDatabase : IEventDatabase
             throw new EventForgingUnexpectedVersionException(aggregateId, null, expectedVersion, retrievedVersion, currentVersion);
 
         NewlySavedEvents[aggregateId] = events.ToArray(); // makes a copy of events
+        return Task.CompletedTask;
+    }
+    
+    public Task DeleteAsync<TAggregate>(string aggregateId, EventsDeletionMode deletionMode, CancellationToken cancellationToken = new CancellationToken())
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // In fake storage, deleting a stream means removing all known events for that stream.
+        _ = AlreadySavedEvents.Remove(aggregateId);
+
         return Task.CompletedTask;
     }
 

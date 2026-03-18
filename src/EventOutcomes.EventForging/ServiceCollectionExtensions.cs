@@ -7,7 +7,9 @@ public static class ServiceCollectionExtensions
 {
     public static IServiceCollection AddEventOutcomesForEventForging(this IServiceCollection services)
     {
-        services.AddSingleton<IEventDatabase, FakeEventDatabase>();
+        services.AddSingleton<FakeEventDatabase>();
+        services.AddSingleton<IEventDatabase>(sp => sp.GetRequiredService<FakeEventDatabase>());
+        services.AddSingleton<IDestructiveEventDatabase>(sp => sp.GetRequiredService<FakeEventDatabase>());
         FakeEventDatabase.Initialize();
         return services;
     }
