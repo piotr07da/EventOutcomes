@@ -12,22 +12,34 @@ public class FakeEventDatabase : IEventDatabase, IDestructiveEventDatabase
 
     internal Dictionary<string, IEnumerable<object>> NewlySavedEvents => _newlySavedEvents.Value ?? throw new NullReferenceException("Not initialized.");
 
-    public async IAsyncEnumerable<object> ReadAsync<TAggregate>(string aggregateId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<object> ReadAsync<TAggregate>(string aggregateId, CancellationToken cancellationToken = default) =>
+        ReadAsync<TAggregate>(aggregateId, EventStreamReadPosition.Beginning, cancellationToken);
+
+    public async IAsyncEnumerable<object> ReadAsync<TAggregate>(string aggregateId, EventStreamReadPosition readPosition, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
-        var records = ReadRecordsAsync<TAggregate>(aggregateId, cancellationToken);
+        var records = ReadRecordsFromPositionAsync<TAggregate>(aggregateId, readPosition, cancellationToken);
         await foreach (var record in records)
         {
             yield return record.EventData;
         }
     }
 
-    public async IAsyncEnumerable<EventDatabaseRecord> ReadRecordsAsync<TAggregate>(string aggregateId, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+    public IAsyncEnumerable<EventDatabaseRecord> ReadRecordsAsync<TAggregate>(string aggregateId, CancellationToken cancellationToken = default) =>
+        ReadRecordsFromPositionAsync<TAggregate>(aggregateId, EventStreamReadPosition.Beginning, cancellationToken);
+
+    private async IAsyncEnumerable<EventDatabaseRecord> ReadRecordsFromPositionAsync<TAggregate>(string aggregateId, EventStreamReadPosition readPosition, [EnumeratorCancellation] CancellationToken cancellationToken = default)
     {
         var alreadySavedEvents = AlreadySavedEvents.TryGetValue(aggregateId, out var asEvents) ? asEvents.ToArray() : Array.Empty<object>();
         var newlySavedEvents = NewlySavedEvents.TryGetValue(aggregateId, out var nsEvents) ? nsEvents.ToArray() : Array.Empty<object>();
         var events = alreadySavedEvents.Concat(newlySavedEvents).ToArray();
+        var firstEventNumber = readPosition.TryGetAfterVersion(out var afterVersion)
+            ? afterVersion.Next().Value
+            : 0L;
         for (var eIx = 0; eIx < events.Length; ++eIx)
         {
+            if (eIx < firstEventNumber)
+                continue;
+
             var e = events[eIx];
 
             yield return new EventDatabaseRecord(
